@@ -8,58 +8,81 @@ const _ = require('underscore');
 
 function nfrotz(options) {
 
+
     var state = 'idle';
 
     this.options = validatedOpts(options);
     this.dfrotz;
 
-    
+
+
+
     this.init = function(options) {
-        if (state !== 'started') {
-            this.options = options ? validatedOpts(options) : this.options;
-        } else {
-            throw (new Error("A game is already running in nfrotz. You must quit before re-initializing it."));
-        }
+        return new Promise((resolve, reject) => {
+            if (state !== 'started') {
+                this.options = options ? validatedOpts(options) : this.options;
+                resolve();
+            } else {
+                reject("ERROR: A game is already running in nfrotz. You must quit before re-initializing it.");
+            }
+        });
     }
+
+
 
 
     this.start = function(options) {
 
-        this.options = options ? validatedOpts(options) : this.options;
-	
-        if (state === 'ready') {
-	    
-            const gf = this.options.gamefile ? path.join(__dirname, this.options.gamefile) : '';
-	    var args = this.options.dfopts;
-	    args.push(gf);
-            this.dfrotz = spawn(path.join(__dirname, this.options.dfexec), args);
+        return new Promise((resolve, reject) => {
 
-	    process.stdin.pipe(this.dfrotz.stdin);
-	    
-	    
-            this.dfrotz.stdout.on('data', (data) => {
-                console.log(`${data}`);
-            });
-	    
-	    
-            this.dfrotz.stderr.on('data', (data) => {
-                console.error(`${data}`);
-            });
+            this.options = options ? validatedOpts(options) : this.options;
+
+            if (state === 'ready') {
+
+                var dfargs = this.options.dfopts;
+                const gf = this.options.gamefile ? path.join(__dirname, this.options.gamefile) : null;
+                if (gf)
+                    dfargs.push(gf);
+
+                console.log(gf);
+
+                this.dfrotz = spawn(path.join(__dirname, this.options.dfexec), dfargs);
+
+                this.dfrotz.stdout.once('readable', () => {
+                    let chunk;
+
+                    while (null != (chunk = this.dfrotz.stdout.read())) {
+                        resolve(chunk.toString());
+                    }
+                });
+
+            } else {
+                reject("ERROR: nfrotz cannot start. You must provide a game file in the options");
+            }
+
+        });
+
+    }
 
 
-            this.dfrotz.on('exit', (code) => {
-                console.log(`Child process exited with code ${code}`);
-            });
+    this.command = function(command) {
+
+        return new Promise((resolve, reject) => {
+
+            if (state === 'running') {
 
 
-            this.dfrotz.on('error', (err) => {
-                console.log(`Child process exited with error ${err}`);
-            });
 
 
-        } else {
-            throw (new Error("nfrotz cannot start. You must provide a game file in the options"));
-        }
+
+            } else {
+
+                reject("ERROR: nfrotz has to be started before receiving commands");
+
+            }
+
+
+        });
     }
 
 
@@ -74,23 +97,43 @@ function nfrotz(options) {
         options.savepath = options.savepath || './saves';
         options.filter = options.filter || null;
 
-        state = _.every(_.omit(options, ['dfopts', 'filter', 'gamefile']), function(opt) {
+        state = _.every(_.omit(options, ['dfopts', 'filter']), function(opt) {
             return !_.isNull(opt)
         }) ? 'ready' : 'idle';
 
         return options;
     }
 
+
 }
 
 
 var nf = new nfrotz();
 
-console.log(nf.options);
-
-nf.start({
+/*
+var opts = {
     gamefile: '../Ruins/Ruins.z5'
-});
+};
+*/
+
+
+(async () => {
+
+    try {
+
+        await nf.init();
+        var res = await nf.start();
+        console.log(res);
+
+    } catch (err) {
+
+        console.log(err);
+
+    }
+
+
+})();
+
 
 
 /*
