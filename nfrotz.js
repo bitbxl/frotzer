@@ -1,5 +1,9 @@
-var path = require('path');
-var _ = require('underscore');
+const path = require('path');
+const {
+    spawn
+} = require('child_process');
+
+const _ = require('underscore');
 
 
 function nfrotz(options) {
@@ -9,44 +13,48 @@ function nfrotz(options) {
     this.options = validatedOpts(options);
     this.dfrotz;
 
-
+    
     this.init = function(options) {
         if (state !== 'started') {
-            this.options = validatedOpts(options);
+            this.options = options ? validatedOpts(options) : this.options;
         } else {
             throw (new Error("A game is already running in nfrotz. You must quit before re-initializing it."));
         }
     }
 
-/*
+
     this.start = function(options) {
-        if (state == 'ready') {
 
-            this.dfrotz = childProcess.execFile(this.options.dfexec, dfrotzArgs, {
-                encoding: 'utf8'
-            }, (error, stdout, stderr) => {
-                if (!stderr && !error) {
-                    output = output.replace('\r', '').split('\n');
+        this.options = options ? validatedOpts(options) : this.options;
+	
+        if (state === 'ready') {
+	    
+            const gf = this.options.gamefile ? path.join(__dirname, this.options.gamefile) : '';
+	    var args = this.options.dfopts;
+	    args.push(gf);
+            this.dfrotz = spawn(path.join(__dirname, this.options.dfexec), args);
 
-                    if (this.outputFilter) {
-                        output = output.filter(this.outputFilter);
-                        output[0] = DFrotzInterface.stripWhiteSpace(output[0], true);
-                    }
-                }
-
-                cb({
-                    stderr: stderr,
-                    error: error
-                }, {
-                    pretty: output,
-                    full: stdout
-                });
+	    process.stdin.pipe(this.dfrotz.stdin);
+	    
+	    
+            this.dfrotz.stdout.on('data', (data) => {
+                console.log(`${data}`);
+            });
+	    
+	    
+            this.dfrotz.stderr.on('data', (data) => {
+                console.error(`${data}`);
             });
 
 
+            this.dfrotz.on('exit', (code) => {
+                console.log(`Child process exited with code ${code}`);
+            });
 
 
-
+            this.dfrotz.on('error', (err) => {
+                console.log(`Child process exited with error ${err}`);
+            });
 
 
         } else {
@@ -54,16 +62,21 @@ function nfrotz(options) {
         }
     }
 
-*/
+
+
+
 
     function validatedOpts(options) {
         options = options || {};
-        options.dfexec = options.dfexec || './bin/dfrotz';
+        options.dfexec = options.dfexec || './frotz/dfrotz';
+        options.dfopts = options.dfopts || [];
         options.gamefile = options.gamefile || null;
-        options.savepath = options.savepath || './';
+        options.savepath = options.savepath || './saves';
         options.filter = options.filter || null;
 
-        state = options.gamefile ? 'ready' : 'idle';
+        state = _.every(_.omit(options, ['dfopts', 'filter', 'gamefile']), function(opt) {
+            return !_.isNull(opt)
+        }) ? 'ready' : 'idle';
 
         return options;
     }
@@ -73,21 +86,11 @@ function nfrotz(options) {
 
 var nf = new nfrotz();
 
-(async function() {
+console.log(nf.options);
 
-    console.log(nf.options);
-
-    nf.init({
-        gamefile: 'a'
-    });
-
-    console.log(nf.options);
-
-    
-    console.log(path.join(__dirname, '/frotz/dfrotz'));
-    
-})();
-
+nf.start({
+    gamefile: '../Ruins/Ruins.z5'
+});
 
 
 /*
