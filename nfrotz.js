@@ -1,9 +1,8 @@
+/* beautify preserve:start */
 const path = require('path');
-const {
-    spawn
-} = require('child_process');
-
+const {spawn} = require('child_process');
 const _ = require('underscore');
+/* beautify preserve:end */
 
 
 function nfrotz(options) {
@@ -16,14 +15,15 @@ function nfrotz(options) {
 
 
 
-
     this.init = function(options) {
+
         return new Promise((resolve, reject) => {
             if (state !== 'started') {
                 this.options = options ? validatedOpts(options) : this.options;
                 resolve();
+
             } else {
-                reject("ERROR: A game is already running in nfrotz. You must quit before re-initializing it.");
+                reject(new Error("A game is already running in nfrotz. You must quit before re-initializing it."));
             }
         });
     }
@@ -50,14 +50,17 @@ function nfrotz(options) {
 
                 this.dfrotz.stdout.once('readable', () => {
                     let chunk;
+                    let chunks = '';
 
                     while (null != (chunk = this.dfrotz.stdout.read())) {
-                        resolve(chunk.toString());
+                        chunks = chunks + chunk.toString();
                     }
+                    this.state = 'running';
+                    resolve(chunks);
                 });
 
             } else {
-                reject("ERROR: nfrotz cannot start. You must provide a game file in the options");
+                reject(new Error("nfrotz cannot start. You must provide a game file in the options"));
             }
 
         });
@@ -77,7 +80,7 @@ function nfrotz(options) {
 
             } else {
 
-                reject("ERROR: nfrotz has to be started before receiving commands");
+                reject(new Error("nfrotz has to be started before receiving commands"));
 
             }
 
@@ -110,29 +113,21 @@ function nfrotz(options) {
 
 var nf = new nfrotz();
 
-/*
+
 var opts = {
-    gamefile: '../Ruins/Ruins.z5'
+    gamefile: '../Ruins.z5'
 };
-*/
 
 
 (async () => {
 
-    try {
+    await nf.init(opts);
+    var res = await nf.start();
+    console.log(res);
 
-        await nf.init();
-        var res = await nf.start();
-        console.log(res);
-
-    } catch (err) {
-
-        console.log(err);
-
-    }
-
-
-})();
+})().catch(e => {
+    console.error(e)
+});
 
 
 
