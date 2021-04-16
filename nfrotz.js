@@ -75,7 +75,8 @@ function nfrotz(options) {
 
                 var responses = [];
 
-                var listener = () => {
+
+		var listener = () => {
 
                     let chunk;
                     let chunks = '';
@@ -83,14 +84,6 @@ function nfrotz(options) {
                     while (null != (chunk = this.dfrotz.stdout.read())) {
                         chunks = chunks + chunk.toString();
                     }
-                    /*
-                                        responses.push(chunks
-                                            .replace(/(^\s+)|(\s+$)/g, '') // trailing spaces /NW/CR
-                                            .replace(/(\w)(\n)(\w)/g, '$1 $3') // delete single /NW/CR inside paragraph
-                                            .replace(/\n{2,}/g, '\n') // reduce multiple NW/CR to one
-                                            .replace(/\s\w*>$/g, '') // remove trailing cursor at the end 
-                                        );
-                    */
 
                     responses.push(this._filters[this.options.filter](chunks));
 
@@ -107,7 +100,9 @@ function nfrotz(options) {
 
                 }
 
-                this.dfrotz.stdout.on('readable', listener);
+
+
+		this.dfrotz.stdout.on('readable', listener);
 
                 commands.forEach((command, index) => {
                     this.dfrotz.stdin.write(command + '\n');
@@ -141,8 +136,6 @@ function nfrotz(options) {
 
         }
 
-
-
     }
 
 
@@ -168,10 +161,10 @@ function nfrotz(options) {
 nfrotz.prototype._filters = {};
 nfrotz.prototype._filters.compact = function(str) {
     return str
-        .replace(/(^\s+)|(\s+$)/g, '') // trailing spaces /NW/CR
-        .replace(/(\w)(\n)(\w)/g, '$1 $3') // delete single /NW/CR inside paragraph
-        .replace(/\n{2,}/g, '\n') // reduce multiple NW/CR to one
-        .replace(/\s\w*>$/g, ''); // remove trailing cursor at the end
+        .replace(/(^\s+)|(\s+$)/g, '')     // trailing spaces \NW\CR
+        .replace(/(\w)(\n)(\w)/g, '$1 $3') // delete single \NW\CR inside paragraph
+        .replace(/\n{2,}/g, '\n')          // reduce multiple \NW\CR to one
+        .replace(/\s\w*>$/g, '');          // remove trailing cursor at the end
 };
 nfrotz.prototype._filters.none = function(str) {
     return str
@@ -181,9 +174,14 @@ nfrotz.prototype._filters.none = function(str) {
 
 
 
+
+
+
+
+
+
+
 var nf = new nfrotz();
-
-
 
 var opts = {
     gamefile: '../Ruins/Ruins.z5',
