@@ -16,10 +16,10 @@ function nfrotz(options) {
     this.options = _validatedOpts(options);
     this.dfrotz;
 
-    
+
     this.init = async function(options) {
 
-	
+
         return new Promise((resolve, reject) => {
 
             if (state !== 'running') {
@@ -33,7 +33,7 @@ function nfrotz(options) {
 
         });
 
-	
+
     }
 
 
@@ -169,7 +169,7 @@ function nfrotz(options) {
                 (async () => {
 
                     let res = await this.command(this.options.seq.quit);
-		    state = 'ready';
+                    state = 'ready';
                     resolve(res);
 
                 })();
@@ -184,7 +184,7 @@ function nfrotz(options) {
     }
 
 
-    
+
     this.save = async function(filename) {
 
         return new Promise((resolve, reject) => {
@@ -215,7 +215,7 @@ function nfrotz(options) {
 
     }
 
-    
+
 
     this.restore = async function(filename) {
 
@@ -227,7 +227,7 @@ function nfrotz(options) {
 
                     var restpath = path.join(__dirname, this.options.savepath, filename);
 
-		    
+
                     if (!fs.existsSync(restpath)) {
                         reject(new Error("The game cannot restored, the file doesn't exist"));
                     }
@@ -297,54 +297,4 @@ nfrotz.prototype._filters.none = function(str) {
 };
 
 
-
-
-var nf = new nfrotz();
-
-var opts = {
-    gamefile: './Ruins.z5',
-    filter: 'oneline'
-};
-
-var res;
-
-(async () => {
-
-    await nf.init(opts);
-    console.log('Game initiated');
-
-    await nf.start();
-    console.log('Game started');
-
-    res = await nf.command('', "look", "look ground", "take mushroom");
-    console.log(JSON.stringify(res, null, '\t'));
-
-    res = await nf.save('pippo.qzl');
-    console.log('Game saved:');
-    console.log(res);
-
-    res = await nf.quit();
-    console.log('Game quit: ');
-    console.log(res);
-
-    await nf.start(opts);
-    console.log('Game restarted');
-
-    res = await nf.command('');
-    console.log(JSON.stringify(res, null, '\t'));
-
-    res = await nf.restore('pippo.qzl');
-    console.log('Game restored: ');
-    console.log(res);
-
-    res = await nf.command("take mushroom");
-    console.log(JSON.stringify(res, null, '\t'));
-
-    res = await nf.quit();
-    console.log('Game quit: ');
-    console.log(res);
-
-
-})().catch(e => {
-    console.error(e)
-});
+exports.nfrotz = nfrotz;
