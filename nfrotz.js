@@ -16,7 +16,6 @@ function nfrotz(options) {
     this.options = _validatedOpts(options);
     this.dfrotz;
 
-
     
     this.init = async function(options) {
 
@@ -227,15 +226,15 @@ function nfrotz(options) {
                 (async () => {
 
                     var restpath = path.join(__dirname, this.options.savepath, filename);
-                    console.log(restpath);
 
+		    
                     if (!fs.existsSync(restpath)) {
                         reject(new Error("The game cannot restored, the file doesn't exist"));
                     }
 
                     let res = await this.command('restore', restpath);
 
-                    console.log('res to restore: ' + res);
+                    //console.log('res to restore: ' + res);
 
                     resolve(res);
 
@@ -249,7 +248,6 @@ function nfrotz(options) {
         });
 
     }
-
 
 
 
