@@ -1,8 +1,8 @@
 {
-  "name": "nfrotz",
+  "name": "frotzer",
   "version": "1.0.0",
   "description": "",
-  "main": "nfrotz.js",
+  "main": "frotzer.js",
   "scripts": {
     "test": "nyc mocha --timeout=3000"
   },
@@ -13,6 +13,7 @@
     "underscore": "^1.12.1"
   },
   "devDependencies": {
+    "chai-as-promised": "^7.1.1",
     "mocha": "^8.3.2",
     "nyc": "^15.1.0"
   }
