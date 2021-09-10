@@ -12,13 +12,14 @@ const _ = require('underscore');
 
 function frotzer(options) {
 
-
     this.state = 'idle';
     this.options;
     this.dfrotz;
 
 
-
+    // ---------------------------------------------
+    // INIT
+    // ---------------------------------------------
     this.init = async (options) => {
 
         return new Promise((resolve, reject) => {
@@ -34,10 +35,13 @@ function frotzer(options) {
             }
 
         });
-
     }
 
 
+
+    // ---------------------------------------------
+    // START
+    // ---------------------------------------------
     this.start = async function(options) {
 
         return new Promise((resolve, reject) => {
@@ -81,7 +85,7 @@ function frotzer(options) {
                 } else {
 
                     // options not valid for starting: rolling back
-		    this._setOptions(currOptions);
+                    this._setOptions(currOptions);
                     reject(new Error("start(): frotzer cannot be started (options not valid)"));
                 }
 
@@ -97,6 +101,9 @@ function frotzer(options) {
     }
 
 
+    // ---------------------------------------------
+    // COMMAND
+    // --------------------------------------------- 
     this.command = async function(...commands) {
 
 
@@ -157,36 +164,19 @@ function frotzer(options) {
     }
 
 
-
-    this.send = async function(text) {
-
-        return new Promise((resolve, reject) => {
-
-            if (this.state === 'running') {
-
-                this.dfrotz.stdin.write(text);
-                resolve();
-
-            } else {
-                reject(new Error("send(): frotzer cannot receive data. You must start a game first"));
-            }
-
-        });
-
-    }
-
-
+    // ---------------------------------------------
+    // QUIT
+    // ---------------------------------------------
     this.quit = async function() {
 
         return new Promise((resolve, reject) => {
 
             if (this.state === 'running') {
-
-                this.command(_.initial(this.options.seq.quit))
+                this.command(_.first(this.options.seq.quit, this.options.seq.quit.length - 1))
                     .then((res) => {
-                        this.send(_.last(this.options.seq.quit) + '\n');
+                        this._send(_.last(this.options.seq.quit) + '\n');
                         this.state = 'ready';
-                        resolve(_.flatten([res, '']));
+                        resolve(_.flatten([res, this.options.seq.quit_endmarker]));
                     });
 
             } else {
@@ -200,6 +190,9 @@ function frotzer(options) {
     }
 
 
+    // ---------------------------------------------
+    // KILL
+    // ---------------------------------------------
     this.kill = async function() {
 
         return new Promise((resolve, reject) => {
@@ -223,7 +216,9 @@ function frotzer(options) {
     }
 
 
-
+    // ---------------------------------------------
+    // SAVE
+    // ---------------------------------------------
     this.save = async function(filename) {
 
         return new Promise((resolve, reject) => {
@@ -256,6 +251,9 @@ function frotzer(options) {
     }
 
 
+    // ---------------------------------------------
+    // RESTORE
+    // ---------------------------------------------
     this.restore = async function(filename) {
 
         return new Promise((resolve, reject) => {
@@ -266,7 +264,7 @@ function frotzer(options) {
 
                 if (!fs.existsSync(restpath)) {
                     this.kill().then(() => {
-                        reject(new Error("The game cannot restored, the file doesn't exist"));
+                        reject(new Error("restore(): The game cannot be restored, the file doesn't exist"));
                     });
                 }
 
@@ -281,8 +279,27 @@ function frotzer(options) {
 
             } else {
                 this.kill().then(() => {
-                    reject(new Error("restore(): You must start a game before restoring a previous one"));
+                    reject(new Error("restore(): You must start a frotzer before restoring a previous game"));
                 });
+            }
+
+        });
+
+    }
+
+
+
+    this._send = async function(text) {
+
+        return new Promise((resolve, reject) => {
+
+            if (this.state === 'running') {
+
+                this.dfrotz.stdin.write(text);
+                resolve();
+
+            } else {
+                reject(new Error("send(): frotzer cannot receive data. You must start a game first"));
             }
 
         });
@@ -302,12 +319,16 @@ function frotzer(options) {
             return false;
         }
 
-        // do not change options if no input
-        if (typeof options === 'undefined') {
+        // do not change options if no input and options are already valid
+        if (typeof options === 'undefined' && this.state === 'ready') {
             return true;
         }
 
-
+        if (typeof options === 'undefined') {
+            options = {};
+            options.seq = {};
+        }
+	
         // apply defaults where opts are 'null' or 'undefined'
         this.options = {};
         this.options.dfexec = options.dfexec || './frotz/dfrotz';
@@ -318,6 +339,7 @@ function frotzer(options) {
 
         this.options.seq = {};
         this.options.seq.quit = (options.seq ? options.seq.quit : undefined) || ['quit', 'yes'];
+        this.options.seq.quit_endmarker = (options.seq ? options.seq.quit_endmarker : undefined) || ['<END>'];
         this.options.seq.save = (options.seq ? options.seq.save : undefined) || ['save', '@filename'];
         this.options.seq.restore = (options.seq ? options.seq.restore : undefined) || ['restore', '@filename'];
         this.options.seq.start = (options.seq ? options.seq.start : undefined) || [''];
@@ -326,13 +348,14 @@ function frotzer(options) {
         // opts not mandatory to get ready to run frotzer (in options and options.seq)
         var dontcare = ['dfopts', 'filter', 'start'];
 
+        // check if frotzer can run
         var chk2run = _.every(_.omit(this.options, dontcare), function(opt) {
             return (!_.isNull(opt) && !_.isUndefined(opt))
         }) && _.every(_.omit(this.options.seq, dontcare), function(opt) {
             return (!_.isNull(opt) || !_.isUndefined(opt))
         });
-		    
         this.state = chk2run ? 'ready' : 'idle';
+
         return true;
     }
 
@@ -343,6 +366,7 @@ function frotzer(options) {
 
 
 frotzer.prototype._filters = {};
+
 frotzer.prototype._filters.compact = function(str) {
     return str
         .replace(/(^\s+)|(\s+$)/g, '') // Remove trailing spaces and \n\r
@@ -350,15 +374,18 @@ frotzer.prototype._filters.compact = function(str) {
         .replace(/\n{2,}/g, '\n') // Reduce multiple \n\r to one
         .replace(/\s\w*>$/g, ''); // Remove cursor at the end of the line
 };
+
 frotzer.prototype._filters.oneline = function(str) {
     return str
         .replace(/(^\s+)|(\s+$)/g, '') // Remove trailing spaces and \n\r
         .replace(/\n{1,}/g, ' ') // No \n\r, spaces..
         .replace(/\s\w*>$/g, ''); // Remove cursor at the end of the line
 };
+
 frotzer.prototype._filters.none = function(str) {
     return str
 };
+
 
 
 exports.frotzer = frotzer;

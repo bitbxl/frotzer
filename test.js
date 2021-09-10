@@ -15,6 +15,7 @@ const _ = require('underscore');
 describe('frotzer', function() {
 
     var fr;
+
     var opts = {
         gamefile: './Ruins.z5',
         filter: 'oneline'
@@ -27,6 +28,13 @@ describe('frotzer', function() {
             fr = new frotzer();
         });
 
+
+        it('should set frotzer\'s default options', async () => {
+
+            await fr.init()
+            assert.isFalse(_.isEmpty(fr.options));
+
+        });
 
         it('should set frotzer\'s options', async () => {
 
@@ -93,6 +101,49 @@ describe('frotzer', function() {
 
         });
 
+
+    });
+
+
+    describe('#command()', function() {
+
+        beforeEach(function() {
+            fr = new frotzer();
+        });
+
+
+        it('should send a single command to frotzer', async () => {
+
+            await fr.init(opts);
+            await fr.start();
+            var msg = await fr.command('look');
+
+            await fr.quit();
+
+            return assert.isString(msg);
+
+        });
+
+        it('should send multiple commands to frotzer', async () => {
+
+            await fr.init(opts);
+            await fr.start();
+            var msg1 = await fr.command('look', 'inventory', 'pick up mushroom', 'inventory');
+            var msg2 = await fr.command(['look', 'inventory', 'drop  mushroom', 'inventory']);
+
+            await fr.quit();
+
+            return (assert.isArray(msg1) && assert.isArray(msg2));
+
+        });
+
+        it('should throw an error if frotzer is in not running state', async () => {
+
+            await fr.init(opts);
+
+            return assert.isRejected(fr.command('look'), Error);
+
+        });
 
     });
 
