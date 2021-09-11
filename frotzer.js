@@ -101,6 +101,30 @@ function frotzer(options) {
     }
 
 
+
+    // ---------------------------------------------
+    // SEND
+    // --------------------------------------------- 
+
+    this.send = async function(text) {
+
+        return new Promise((resolve, reject) => {
+
+            if (this.state === 'running') {
+ 
+                this.dfrotz.stdin.write(text); 
+                resolve();
+
+            } else {
+                reject(new Error("send(): frotzer cannot receive data. You must start a game first"));
+            }
+
+        });
+
+    }
+    
+
+    
     // ---------------------------------------------
     // COMMAND
     // --------------------------------------------- 
@@ -129,8 +153,7 @@ function frotzer(options) {
                 }
 
                 this.dfrotz.stdout.once('readable', listener);
-
-                this.dfrotz.stdin.write(command + '\n');
+		this.send(command + '\n');
 
             });
         }
@@ -163,7 +186,7 @@ function frotzer(options) {
 
     }
 
-
+    
     // ---------------------------------------------
     // QUIT
     // ---------------------------------------------
@@ -174,7 +197,7 @@ function frotzer(options) {
             if (this.state === 'running') {
                 this.command(_.first(this.options.seq.quit, this.options.seq.quit.length - 1))
                     .then((res) => {
-                        this._send(_.last(this.options.seq.quit) + '\n');
+                        this.send(_.last(this.options.seq.quit) + '\n');
                         this.state = 'ready';
                         resolve(_.flatten([res, this.options.seq.quit_endmarker]));
                     });
@@ -288,26 +311,6 @@ function frotzer(options) {
     }
 
 
-
-    this._send = async function(text) {
-
-        return new Promise((resolve, reject) => {
-
-            if (this.state === 'running') {
-
-                this.dfrotz.stdin.write(text);
-                resolve();
-
-            } else {
-                reject(new Error("send(): frotzer cannot receive data. You must start a game first"));
-            }
-
-        });
-
-    }
-
-
-
     this._setOptions = function(options) {
 
         // try to assign and update state
@@ -361,7 +364,6 @@ function frotzer(options) {
 
 
 } // end frotzer module
-
 
 
 
