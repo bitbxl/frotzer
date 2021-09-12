@@ -4,7 +4,8 @@
   "description": "",
   "main": "frotzer.js",
   "scripts": {
-    "test": "nyc mocha --timeout=3000"
+      "test": "nyc mocha --timeout=3000",
+      "coverage": "nyc --reporter=text-summary mocha | grep Statements | awk '{print $3}'"
   },
   "keywords": [],
   "author": "",

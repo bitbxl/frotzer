@@ -1,1 +1,1 @@
-[![Actions Status](https://github.com/bitbxl/nfrotz/workflows/Test/badge.svg)](https://github.com/bitbxl/nfrotz/actions)
+[![Actions Status](https://github.com/bitbxl/nfrotz/workflows/Test/badge.svg)](https://github.com/bitbxl/nfrotz/actions) ![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/bitbxl/554394d67973a35b66f7b60a24fa0950/raw/frotzer-coverage.json)

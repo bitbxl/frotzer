@@ -23,11 +23,26 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: recursive
+
     - name: Use Node.js ${{ matrix.node-version }}
       uses: actions/setup-node@v2
       with:
         node-version: ${{ matrix.node-version }}
+
     - run: make -C frotz/ dumb
     - run: npm ci
     - run: npm run build --if-present
     - run: npm test
+
+    - name: Get the Numbers
+      run: echo "COVERAGE=$(npm run coverage | grep %)" >> $GITHUB_ENV
+      
+    - name: Create Coverage Badge
+      uses: schneegans/dynamic-badges-action@v1.1.0
+      with:
+        auth: ${{ secrets.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 }}
+        gistID: 554394d67973a35b66f7b60a24fa0950
+        filename: frotzer-coverage.json
+        label: Coverage
+        message: ${{ env.COVERAGE }}
+        color: blue

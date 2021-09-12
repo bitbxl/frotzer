@@ -111,8 +111,8 @@ function frotzer(options) {
         return new Promise((resolve, reject) => {
 
             if (this.state === 'running') {
- 
-                this.dfrotz.stdin.write(text); 
+
+                this.dfrotz.stdin.write(text);
                 resolve();
 
             } else {
@@ -122,9 +122,9 @@ function frotzer(options) {
         });
 
     }
-    
 
-    
+
+
     // ---------------------------------------------
     // COMMAND
     // --------------------------------------------- 
@@ -153,7 +153,7 @@ function frotzer(options) {
                 }
 
                 this.dfrotz.stdout.once('readable', listener);
-		this.send(command + '\n');
+                this.send(command + '\n');
 
             });
         }
@@ -186,7 +186,7 @@ function frotzer(options) {
 
     }
 
-    
+
     // ---------------------------------------------
     // QUIT
     // ---------------------------------------------
@@ -197,15 +197,14 @@ function frotzer(options) {
             if (this.state === 'running') {
                 this.command(_.first(this.options.seq.quit, this.options.seq.quit.length - 1))
                     .then((res) => {
-                        this.send(_.last(this.options.seq.quit) + '\n');
-                        this.state = 'ready';
-                        resolve(_.flatten([res, this.options.seq.quit_endmarker]));
+                        this.send(_.last(this.options.seq.quit) + '\n').then(() => {
+                            this.state = 'ready';
+                            resolve(_.flatten([res, this.options.seq.quit_endmarker]));
+                        });
                     });
 
             } else {
-                this.kill().then(() => {
-                    reject(new Error("quit(): You must start a game before quitting it"));
-                });
+                reject(new Error("quit(): You must start a game before quitting it"));
             }
 
         });
@@ -264,9 +263,7 @@ function frotzer(options) {
                 });
 
             } else {
-                this.kill().then(() => {
                     reject(new Error("save(): You must start a game before saving it"));
-                });
             }
 
         });
@@ -331,7 +328,7 @@ function frotzer(options) {
             options = {};
             options.seq = {};
         }
-	
+
         // apply defaults where opts are 'null' or 'undefined'
         this.options = {};
         this.options.dfexec = options.dfexec || './frotz/dfrotz';
