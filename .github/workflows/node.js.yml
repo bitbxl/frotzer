@@ -40,7 +40,7 @@ jobs:
     - name: Create Coverage Badge
       uses: schneegans/dynamic-badges-action@v1.1.0
       with:
-        auth: ${{ secrets.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 }}
+        auth: ${{ secrets.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 }}
         gistID: 554394d67973a35b66f7b60a24fa0950
         filename: frotzer-coverage.json
         label: Coverage
