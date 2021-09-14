@@ -279,7 +279,7 @@ describe('frotzer', function() {
             try {
                 await fs.access(filepath);
             } catch (error) {
-                await fs.writeFile(filepath);
+                await fs.writeFile(filepath, 'dummy');
             }
 
             await fr.init(opts);
