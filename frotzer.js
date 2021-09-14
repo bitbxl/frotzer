@@ -248,7 +248,7 @@ function frotzer(options) {
             if (this.state === 'running') {
 
                 var savepath = path.join(__dirname, this.options.savepath, filename);
-
+		
                 if (fs.existsSync(savepath)) {
                     fs.unlinkSync(savepath);
                 }
@@ -263,7 +263,7 @@ function frotzer(options) {
                 });
 
             } else {
-                    reject(new Error("save(): You must start a game before saving it"));
+                reject(new Error("save(): You must start a game before saving it"));
             }
 
         });
@@ -298,9 +298,7 @@ function frotzer(options) {
                 });
 
             } else {
-                this.kill().then(() => {
-                    reject(new Error("restore(): You must start a frotzer before restoring a previous game"));
-                });
+                reject(new Error("restore(): You must start a frotzer before restoring a previous game"));
             }
 
         });
@@ -343,7 +341,7 @@ function frotzer(options) {
         this.options.seq.save = (options.seq ? options.seq.save : undefined) || ['save', '@filename'];
         this.options.seq.restore = (options.seq ? options.seq.restore : undefined) || ['restore', '@filename'];
         this.options.seq.start = (options.seq ? options.seq.start : undefined) || [''];
-        this.options.seq.start_drop = (options.seq ? options.seq.start_drop : undefined) || 2; // initial lines to drop at start
+        this.options.seq.start_drop = (options.seq ? options.seq.start_drop : undefined) || 1; // initial lines to drop at start
 
         // opts not mandatory to get ready to run frotzer (in options and options.seq)
         var dontcare = ['dfopts', 'filter', 'start'];
