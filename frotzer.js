@@ -54,8 +54,8 @@ function frotzer(options) {
                 if (this.state === 'ready') {
 
                     var dfargs = this.options.dfopts;
-                    const gfopt = this.options.gamefile ? path.join(__dirname, this.options.gamefile) : null;
-                    if (gfopt)
+                    const gfopt = /* this.options.gamefile ? */ path.join(__dirname, this.options.gamefile) /*: null;*/
+//                    if (gfopt)
                         dfargs.push(gfopt);
 
 
@@ -248,7 +248,7 @@ function frotzer(options) {
             if (this.state === 'running') {
 
                 var savepath = path.join(__dirname, this.options.savepath, filename);
-		
+
                 if (fs.existsSync(savepath)) {
                     fs.unlinkSync(savepath);
                 }
@@ -282,20 +282,25 @@ function frotzer(options) {
 
                 var restpath = path.join(__dirname, this.options.savepath, filename);
 
-                if (!fs.existsSync(restpath)) {
-                    this.kill().then(() => {
-                        reject(new Error("restore(): The game cannot be restored, the file doesn't exist"));
-                    });
-                }
+                fs.access(restpath, (err) => {
+                    if (err) {
+                        this.kill().then(() => {
+                            reject(new Error("restore(): The game cannot be restored, the file doesn't exist"));
+                        });
 
-                const fln = (el) => el.includes('@filename');
-                const i = this.options.seq.restore.findIndex(fln);
-                const seq = this.options.seq.restore;
-                seq[i] = seq[i].replace('@filename', restpath);
+                    } else {
 
-                this.command(seq).then((res) => {
-                    resolve(res);
+                        const fln = (el) => el.includes('@filename');
+                        const i = this.options.seq.restore.findIndex(fln);
+                        const seq = this.options.seq.restore;
+                        seq[i] = seq[i].replace('@filename', restpath);
+
+                        this.command(seq).then((res) => {
+                            resolve(res);
+                        });
+                    }
                 });
+		
 
             } else {
                 reject(new Error("restore(): You must start a frotzer before restoring a previous game"));
