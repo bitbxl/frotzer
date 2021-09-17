@@ -8,18 +8,19 @@ on:
 
 env:
   GIST_ID: 554394d67973a35b66f7b60a24fa0950
-  test_status: passing
-  test_color: green
-
+  build_fail_color: red
+  test_success_color: brightgreen
+  test_fail_color: red
+  
 jobs:
 
   build_and_test:
-    name: Build and Test (${{ matrix.os }})
+    name: Build (${{ matrix.os }}) (Node.js (${{ matrix.node-version }}) 
 
     runs-on: ${{ matrix.os }}
 
     env:
-      build_status: passing
+      build_status: failing
       build_color: ${{ matrix.badge_success_color }}
 
     strategy:
@@ -32,7 +33,7 @@ jobs:
             badge_filename: frotzer-linux-build.json
             badge_label: Linux build
             badge_success_color: orange
-            
+           
           - os: macos-latest
             build_command: "make -C frotz/ dumb"
             badge_filename: frotzer-macos-build.json
@@ -49,21 +50,18 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-
+     
       - name: Build dumb frotz for ${{ matrix.os }}
         run: |
-          if ${{ matrix.build_command }}; then
+          if ${{ matrix.build_command }} ; then
             echo "build_status=passing" >> $GITHUB_ENV
             echo "build_color=${{ matrix.badge_success_color }}" >> $GITHUB_ENV
-            exit 0
           else
             echo "build_status=failing" >> $GITHUB_ENV
-            echo "build_color=red" >> $GITHUB_ENV
-            exit 1
-         fi       
+            echo "build_color=${{ env.build_fail_color }}" >> $GITHUB_ENV
+          fi       
 
       - name: Create build badge
-        if: ${{ always() }}
         uses: schneegans/dynamic-badges-action@v1.1.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
@@ -72,28 +70,3 @@ jobs:
           label: ${{ matrix.badge_label }}
           message: ${{ env.build_status }}
           color: ${{ env.build_color }}
-
-      - name: Install Node.js dependencies and test frotzer
-        if: ${{ always() }}
-        run: |
-          npm ci
-          if npm test; then
-            echo "test_status=passing" >> $GITHUB_ENV
-            echo "test_color=green" >> $GITHUB_ENV
-            exit 0
-          else
-            echo "test_status=failing" >> $GITHUB_ENV
-            echo "test_color=red" >> $GITHUB_ENV
-            exit 1
-         fi
-
-      - name: Create test badge
-        if: ${{ always() }}
-        uses: schneegans/dynamic-badges-action@v1.1.0
-        with:
-          auth: ${{ secrets.GIST_SECRET }}
-          gistID: ${{ env.GIST_ID }}
-          filename: frotzer-test.json
-          label: Tests
-          message: ${{ env.test_status }}
-          color: ${{ env.test_color }}
