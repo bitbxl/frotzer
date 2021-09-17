@@ -66,8 +66,8 @@ jobs:
           gistID: ${{ env.GIST_ID }}
           filename: ${{ matrix.badge_filename }}
           label: ${{ matrix.badge_label }}
-          message: ${{ build_status }}
-          color: ${{ build_color }}
+          message: ${{ env.build_status }}
+          color: ${{ env.build_color }}
 
       - name: Test frotzer
         run: npm test
