@@ -24,7 +24,8 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [10.x, 12.x, 14.x, 15.x, 16.x]
+        os: [ubuntu-latest, ubuntu-18.04]
+        node-version: [12.x, 14.x]
         include:
           - os: ubuntu-latest
             build_command: "make -C frotz/ dumb"
@@ -32,7 +33,7 @@ jobs:
             badge_label: Linux build
             badge_color: orange
             
-          - os: ubuntu-18.04 #macos-latest
+          - os: ubuntu-18.04
             build_command: "make -C frotz/ dumb"
             badge_filename: frotzer-macos-build.json
             badge_label: macOS build
