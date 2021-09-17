@@ -33,7 +33,7 @@ jobs:
             badge_label: Linux build
             badge_color: orange
             
-          - os: ubuntu-18.04
+          - os: macos-latest
             build_command: "make -C frotz/ dumb"
             badge_filename: frotzer-macos-build.json
             badge_label: macOS build
@@ -51,7 +51,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Build dumb frotz for ${{ matrix.os }}
-        run: eval ${{ matrix.build_command }}
+        run: ${{ matrix.build_command }}
         continue-on-error: true
 
       - name: Update build result on failure
