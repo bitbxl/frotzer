@@ -1,0 +1,90 @@
+name: Frotzer CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  GIST_ID: 554394d67973a35b66f7b60a24fa0950
+  test_status: passing
+  test_color: green
+
+jobs:
+
+  build_and_test:
+    name: Build and Test (${{ matrix.os }})
+
+    runs-on: ${{ matrix.os }}
+
+    env:
+      build_status: passing
+      build_color: ${{ matrix.badge_color }}
+
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x, 14.x, 15.x, 16.x]
+	include:
+	  - os: ubuntu-latest
+            build_command: "make -C frotz/ dumb"
+	    badge_filename: frotzer-linux-build.json
+            badge_label: Linux build
+            badge_color: orange
+	    
+	  - os: ubuntu-18.04 #macos-latest
+            build_command: "make -C frotz/ dumb"
+	    badge_filename: frotzer-macos-build.json
+	    badge_label: macOS build
+            badge_color: black
+	    
+    steps:
+      - name: Clone repositories
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Build dumb frotz for ${{ matrix.os }}
+	run: ${{ matrix.bld_command }}
+	continue-on-error: true
+
+      - name: Update build result on failure
+	if: ${{ failure() }}
+	run: |
+	  echo "build_status=failing" >> $GITHUB_ENV
+	  echo "build_color=red" >> $GITHUB_ENV
+
+      - name: Create build badge
+        uses: schneegans/dynamic-badges-action@v1.1.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: ${{ env.GIST_ID }}
+          filename: ${{ matrix.badge_filename }}
+          label: ${{ matrix.badge_label }}
+          message: ${{ build_status }}
+          color: ${{ build_color }}
+
+      - name: Test frotzer
+        run: npm test
+        continue-on-error: true
+
+      - name: Update build result on failure
+	if: ${{ failure() }}
+	run: |
+	  echo "test_status=failing" >> $GITHUB_ENV
+	  echo "test_color=red" >> $GITHUB_ENV
+
+      - name: Create test badge
+        uses: schneegans/dynamic-badges-action@v1.1.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: ${{ env.GIST_ID }}
+          filename: frotzer-test.json
+          label: Tests
+          message: ${{ env.test_status }}
+          color: ${{ env.test_color }}
