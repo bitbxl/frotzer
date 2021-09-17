@@ -20,7 +20,7 @@ jobs:
 
     env:
       build_status: passing
-      build_color: ${{ matrix.badge_color }}
+      build_color: ${{ matrix.badge_success_color }}
 
     strategy:
       matrix:
@@ -31,13 +31,13 @@ jobs:
             build_command: "make -C frotz/ dumb"
             badge_filename: frotzer-linux-build.json
             badge_label: Linux build
-            badge_color: orange
+            badge_success_color: orange
             
           - os: macos-latest
             build_command: "make -C frotz/ dumb"
             badge_filename: frotzer-macos-build.json
             badge_label: macOS build
-            badge_color: black
+            badge_success_color: black
             
     steps:
       - name: Clone repositories
@@ -51,16 +51,19 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Build dumb frotz for ${{ matrix.os }}
-        run: ${{ matrix.build_command }}
-        continue-on-error: true
-
-      - name: Update build result on failure
-        if: ${{ failure() }}
         run: |
-          echo "build_status=failing" >> $GITHUB_ENV
-          echo "build_color=red" >> $GITHUB_ENV
+	  if ${{ matrix.build_command }}; then
+            echo "build_status=passing" >> $GITHUB_ENV
+            echo "build_color=${{ matrix.badge_success_color }}" >> $GITHUB_ENV
+	    exit 0
+	  else
+            echo "build_status=failing" >> $GITHUB_ENV
+            echo "build_color=red" >> $GITHUB_ENV
+	    exit 1
+         fi	  
 
       - name: Create build badge
+        if: ${{ always() }}
         uses: schneegans/dynamic-badges-action@v1.1.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
@@ -71,18 +74,21 @@ jobs:
           color: ${{ env.build_color }}
 
       - name: Install Node.js dependencies and test frotzer
+        if: ${{ always() }}
         run: |
           npm ci
-          npm test 
-        continue-on-error: true
-
-      - name: Update build result on failure
-        if: ${{ failure() }}
-        run: |
-          echo "test_status=failing" >> $GITHUB_ENV
-          echo "test_color=red" >> $GITHUB_ENV
+          if npm test; then
+            echo "test_status=passing" >> $GITHUB_ENV
+            echo "test_color=green" >> $GITHUB_ENV
+	    exit 0
+	  else
+            echo "test_status=failing" >> $GITHUB_ENV
+            echo "test_color=red" >> $GITHUB_ENV
+	    exit 1
+         fi
 
       - name: Create test badge
+        if: ${{ always() }}
         uses: schneegans/dynamic-badges-action@v1.1.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
