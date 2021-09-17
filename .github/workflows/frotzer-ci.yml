@@ -52,15 +52,15 @@ jobs:
 
       - name: Build dumb frotz for ${{ matrix.os }}
         run: |
-	  if ${{ matrix.build_command }}; then
+          if ${{ matrix.build_command }}; then
             echo "build_status=passing" >> $GITHUB_ENV
             echo "build_color=${{ matrix.badge_success_color }}" >> $GITHUB_ENV
-	    exit 0
-	  else
+            exit 0
+          else
             echo "build_status=failing" >> $GITHUB_ENV
             echo "build_color=red" >> $GITHUB_ENV
-	    exit 1
-         fi	  
+            exit 1
+         fi       
 
       - name: Create build badge
         if: ${{ always() }}
@@ -80,11 +80,11 @@ jobs:
           if npm test; then
             echo "test_status=passing" >> $GITHUB_ENV
             echo "test_color=green" >> $GITHUB_ENV
-	    exit 0
-	  else
+            exit 0
+          else
             echo "test_status=failing" >> $GITHUB_ENV
             echo "test_color=red" >> $GITHUB_ENV
-	    exit 1
+            exit 1
          fi
 
       - name: Create test badge
