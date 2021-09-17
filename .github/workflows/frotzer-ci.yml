@@ -8,9 +8,9 @@ on:
 
 env:
   GIST_ID: 554394d67973a35b66f7b60a24fa0950
-  build_fail_color: red
-  test_success_color: brightgreen
-  test_fail_color: red
+  build_fail_color: FF0000
+  test_success_color: 00FF00
+  test_fail_color: FF0000
   
 jobs:
 
@@ -32,13 +32,13 @@ jobs:
             build_command: "make -C frotz/ dumb"
             badge_filename: frotzer-linux-build.json
             badge_label: Linux build
-            badge_success_color: orange
+            badge_success_color: 95420
            
           - os: ubuntu-18.04
             build_command: "mak -C frotz/ dumb"
             badge_filename: frotzer-macos-build.json
             badge_label: macOS build
-            badge_success_color: black
+            badge_success_color: 000000
             
     steps:
       - name: Clone repositories
