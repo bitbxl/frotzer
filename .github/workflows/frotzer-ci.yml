@@ -63,7 +63,7 @@ jobs:
           fi       
 
       - name: Create build badge
-        if: always()
+        if: ${{ always() }}
         uses: schneegans/dynamic-badges-action@v1.1.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
