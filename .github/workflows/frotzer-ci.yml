@@ -51,7 +51,7 @@ jobs:
           node-version: ${{ matrix.node-version }}
 
       - name: Build dumb frotz for ${{ matrix.os }}
-        run: ${{ matrix.bld_command }}
+        run: eval ${{ matrix.bld_command }}
         continue-on-error: true
 
       - name: Update build result on failure
