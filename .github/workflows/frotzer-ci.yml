@@ -14,7 +14,7 @@ env:
   
 jobs:
 
-  build_and_test:
+  build:
     name: Build (${{ matrix.os }}) (Node.js (${{ matrix.node-version }}) 
 
     runs-on: ${{ matrix.os }}
@@ -25,7 +25,7 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest, ubuntu-18.40]
         node-version: [12.x, 14.x]
         include:
           - os: ubuntu-latest
@@ -34,8 +34,8 @@ jobs:
             badge_label: Linux build
             badge_success_color: orange
            
-          - os: macos-latest
-            build_command: "make -C frotz/ dumb"
+          - os: ubuntu-18.40
+            build_command: "mak -C frotz/ dumb"
             badge_filename: frotzer-macos-build.json
             badge_label: macOS build
             badge_success_color: black
@@ -59,9 +59,11 @@ jobs:
           else
             echo "build_status=failing" >> $GITHUB_ENV
             echo "build_color=${{ env.build_fail_color }}" >> $GITHUB_ENV
+            exit 1
           fi       
 
       - name: Create build badge
+        if: always()
         uses: schneegans/dynamic-badges-action@v1.1.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
