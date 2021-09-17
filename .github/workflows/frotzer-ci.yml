@@ -69,8 +69,10 @@ jobs:
           message: ${{ env.build_status }}
           color: ${{ env.build_color }}
 
-      - name: Test frotzer
-        run: npm test
+      - name: Install Node.js dependencies and test frotzer
+        run: |
+          npm ci
+          npm test 
         continue-on-error: true
 
       - name: Update build result on failure
