@@ -22,9 +22,9 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     env:
-      # status (to be checked and/or set at each job run)
+      # (Initial) status (to be checked and/or set at each job run)
       build_linux_color: e95420
-      build_macos_color: 000000
+      build_macos_color: "000000"
       build_linux_status: OK
       build_macos_status: OK
       test_color: 00FF00
@@ -72,15 +72,17 @@ jobs:
       - name: Build dumb frotz and frotzer deps on ${{ matrix.os }}
         run: |
           ${{ matrix.build_command }}
-    
+
+      # runs only is build on ubuntu fails
       - name: Set build badge values (Linux)
         if: ${{ failure() && contains(matrix.os, 'ubuntu') && env.build_linux_status=='OK' }}
         run: |
           echo "env.build_linux_status=NOK" >> $GITHUB_ENV
           echo "build_linux_color=${{ env.build_fail_color }}" >> $GITHUB_ENV
-          echo "test_linux_status=failing" >> $GITHUB_ENV
+          echo "test_status=failing" >> $GITHUB_ENV
           echo "test_color=${{ env.test_fail_color }}" >> $GITHUB_ENV
-          
+
+      # runs only is build on macos fails
       - name: Set build badge values (macOS)
         if: ${{ failure() && contains(matrix.os, '18') && env.build_macos_status=='OK' }}
         run: |
