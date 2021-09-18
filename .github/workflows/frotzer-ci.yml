@@ -14,12 +14,7 @@ env:
   test_label: Tests
   test_success_color: 00FF00
   test_fail_color: FF0000
-  # status (to be checked and/or set at each job run)
-  build_linux_status: OK
-  build_macos_status: OK
-  build_status: OK
-  test_status: passing
-  test_color: env.test_success_color
+  
   
 jobs:
 
@@ -31,7 +26,12 @@ jobs:
     env:
       # status (to be checked and/or set at each job run)
       build_color: ${{ matrix.build_success_color }}
-
+      build_linux_status: OK
+      build_macos_status: OK
+      build_status: OK
+      test_color: ${{ env.test_success_color }}
+      test_status: passing
+      
     strategy:
       matrix:
         os: [ubuntu-latest, ubuntu-18.04]
