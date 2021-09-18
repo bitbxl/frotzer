@@ -23,7 +23,7 @@ jobs:
       build_status: failing
       build_color: ${{ matrix.badge_success_color }}
 
-   strategy:
+    strategy:
       matrix:
         os: [ubuntu-latest, ubuntu-18.04]
         node-version: [12.x, 14.x]
