@@ -15,7 +15,7 @@ env:
 jobs:
 
   build:
-    name: Build (${{ matrix.os }}) (Node.js (${{ matrix.node-version }}) 
+    name: Build (${{ matrix.os }})
 
     runs-on: ${{ matrix.os }}
 
@@ -23,7 +23,7 @@ jobs:
       build_status: failing
       build_color: ${{ matrix.badge_success_color }}
 
-    strategy:
+   strategy:
       matrix:
         os: [ubuntu-latest, ubuntu-18.04]
         node-version: [12.x, 14.x]
@@ -62,19 +62,23 @@ jobs:
 #            exit 1
 #          fi       
 
-      - name: Set badge values (failing)
+      - name: Build dumb frotz for ${{ matrix.os }}
+        run: ${{ matrix.build_command }}
+
+      - name: Set build badge values (failing)
         if: ${{ failure() }}
         run: |
           echo "build_status=failing" >> $GITHUB_ENV
           echo "build_color=${{ env.build_fail_color }}" >> $GITHUB_ENV
 
-      - name: Set badge values (success)
+      - name: Set build badge values (success)
         if: ${{ success() }}
         run: |
+          npm ci
           echo "build_status=passing" >> $GITHUB_ENV
           echo "build_color=${{ matrix.badge_success_color }}" >> $GITHUB_ENV
           
-      - name: Create build badge
+      - name: Publish build badge
         if: ${{ always() }}
         uses: schneegans/dynamic-badges-action@v1.1.0
         with:
