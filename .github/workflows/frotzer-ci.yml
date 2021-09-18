@@ -38,7 +38,7 @@ jobs:
             build_command: "make -C frotz/ dumb"
             badge_filename: frotzer-macos-build.json
             badge_label: macOS build
-            badge_success_color: 000000
+            badge_success_color: FFFFFF
             
     steps:
       - name: Clone repositories
@@ -51,17 +51,29 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
      
-      - name: Build dumb frotz for ${{ matrix.os }}
-        run: |
-          if ${{ matrix.build_command }} ; then
-            echo "build_status=passing" >> $GITHUB_ENV
-            echo "build_color=${{ matrix.badge_success_color }}" >> $GITHUB_ENV
-          else
-            echo "build_status=failing" >> $GITHUB_ENV
-            echo "build_color=${{ env.build_fail_color }}" >> $GITHUB_ENV
-            exit 1
-          fi       
+#      - name: Build dumb frotz for ${{ matrix.os }}
+#        run: |
+#          if ${{ matrix.build_command }} ; then
+#            echo "build_status=passing" >> $GITHUB_ENV
+#            echo "build_color=${{ matrix.badge_success_color }}" >> $GITHUB_ENV
+#          else
+#            echo "build_status=failing" >> $GITHUB_ENV
+#            echo "build_color=${{ env.build_fail_color }}" >> $GITHUB_ENV
+#            exit 1
+#          fi       
 
+      - name: Set badge values (failing)
+        if: ${{ failure() }}
+        run: |
+          echo "build_status=failing" >> $GITHUB_ENV
+          echo "build_color=${{ env.build_fail_color }}" >> $GITHUB_ENV
+
+      - name: Set badge values (success)
+        if: ${{ success() }}
+        run: |
+          echo "build_status=passing" >> $GITHUB_ENV
+          echo "build_color=${{ env.build_success_color }}" >> $GITHUB_ENV
+          
       - name: Create build badge
         if: ${{ always() }}
         uses: schneegans/dynamic-badges-action@v1.1.0
