@@ -29,7 +29,7 @@ jobs:
       build_linux_status: OK
       build_macos_status: OK
       build_status: OK
-      test_color: ${{ env.test_success_color }}
+      test_color: 00FF00
       test_status: passing
       
     strategy:
@@ -51,7 +51,7 @@ jobs:
             build_label: macOS build
             build_success_color: 000000
             
-    steps:
+    steps:      
       - name: Clone repositories
         uses: actions/checkout@v2
         with:
