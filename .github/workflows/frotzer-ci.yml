@@ -7,14 +7,12 @@ on:
     branches: [ main ]
 
 env:
-  GIST_ID: 554394d67973a35b66f7b60a24fa0950
   # constants
+  GIST_ID: 554394d67973a35b66f7b60a24fa0950
   build_fail_color: FF0000
   test_filename: frotzer-test.json
   test_label: Tests
-  test_success_color: 00FF00
   test_fail_color: FF0000
-  
   
 jobs:
 
@@ -25,10 +23,10 @@ jobs:
 
     env:
       # status (to be checked and/or set at each job run)
-      build_color: ${{ matrix.build_success_color }}
+      build_linux_color: e95420
+      build_macos_color: 000000
       build_linux_status: OK
       build_macos_status: OK
-      build_status: OK
       test_color: 00FF00
       test_status: passing
       
@@ -42,14 +40,12 @@ jobs:
             build_command: "make -C frotz/ dumb"
             build_filename: frotzer-linux-build.json
             build_label: Linux build
-            build_success_color: e95420
            
           - os: ubuntu-18.04
             # constants (macOS)
             build_command: "make -C frotz/ dumb"
             build_filename: frotzer-macos-build.json
             build_label: macOS build
-            build_success_color: 000000
             
     steps:      
       - name: Clone repositories
@@ -81,17 +77,17 @@ jobs:
         if: ${{ failure() && contains(matrix.os, 'ubuntu') && env.build_linux_status=='OK' }}
         run: |
           echo "env.build_linux_status=NOK" >> $GITHUB_ENV
-          echo "build_status=NOK" >> $GITHUB_ENV
-          echo "build_color=${{ env.build_fail_color }}" >> $GITHUB_ENV
-          echo "test_status=failing" >> $GITHUB_ENV
-
+          echo "build_linux_color=${{ env.build_fail_color }}" >> $GITHUB_ENV
+          echo "test_linux_status=failing" >> $GITHUB_ENV
+          echo "test_color=${{ env.test_fail_color }}" >> $GITHUB_ENV
+          
       - name: Set build badge values (macOS)
         if: ${{ failure() && contains(matrix.os, '18') && env.build_macos_status=='OK' }}
         run: |
           echo "env.build_macos_status=NOK" >> $GITHUB_ENV
-          echo "build_status=NOK" >> $GITHUB_ENV
-          echo "build_color=${{ env.build_fail_color }}" >> $GITHUB_ENV
+          echo "build_macos_color=${{ env.build_fail_color }}" >> $GITHUB_ENV
           echo "test_status=failing" >> $GITHUB_ENV
+          echo "test_color=${{ env.test_fail_color }}" >> $GITHUB_ENV
           
       - name: Test frotzer on ${{ matrix.os }}/${{ matrix.node-version }}
         if: ${{ success() }}
@@ -105,7 +101,7 @@ jobs:
           echo "test_status=failing" >> $GITHUB_ENV
           echo "test_color=${{ env.test_fail_color }}" >> $GITHUB_ENV
           
-      - name: Publish build badge
+      - name: Publish build badge (Linux)
         if: ${{ always() }}
         uses: schneegans/dynamic-badges-action@v1.1.0
         with:
@@ -113,9 +109,20 @@ jobs:
           gistID: ${{ env.GIST_ID }}
           filename: ${{ matrix.build_filename }}
           label: ${{ matrix.build_label }}
-          message: ${{ env.build_status }}
-          color: ${{ env.build_color }}
+          message: ${{ env.build_linux_status }}
+          color: ${{ env.build_linux_color }}
 
+      - name: Publish build badge (macOS)
+        if: ${{ always() }}
+        uses: schneegans/dynamic-badges-action@v1.1.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: ${{ env.GIST_ID }}
+          filename: ${{ matrix.build_filename }}
+          label: ${{ matrix.build_label }}
+          message: ${{ env.build_macos_status }}
+          color: ${{ env.build_macos_color }}
+          
       - name: Publish test badge
         if: ${{ always() }}
         uses: schneegans/dynamic-badges-action@v1.1.0
