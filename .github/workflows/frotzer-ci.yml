@@ -8,9 +8,18 @@ on:
 
 env:
   GIST_ID: 554394d67973a35b66f7b60a24fa0950
+  # constants
   build_fail_color: FF0000
+  test_filename: frotzer-test.json
+  test_label: Tests
   test_success_color: 00FF00
   test_fail_color: FF0000
+  # status (to be checked and/or set at each job run)
+  build_linux_status: OK
+  build_macos_status: OK
+  build_status: OK
+  test_status: passing
+  test_color: env.test_success_color
   
 jobs:
 
@@ -20,8 +29,8 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     env:
-      build_status: failing
-      build_color: ${{ matrix.badge_success_color }}
+      # status (to be checked and/or set at each job run)
+      build_color: ${{ matrix.build_success_color }}
 
     strategy:
       matrix:
@@ -29,16 +38,18 @@ jobs:
         node-version: [12.x, 14.x]
         include:
           - os: ubuntu-latest
+            # constants (ubuntu)
             build_command: "make -C frotz/ dumb"
-            badge_filename: frotzer-linux-build.json
-            badge_label: Linux build
-            badge_success_color: e95420
+            build_filename: frotzer-linux-build.json
+            build_label: Linux build
+            build_success_color: e95420
            
           - os: ubuntu-18.04
+            # constants (macOS)
             build_command: "make -C frotz/ dumb"
-            badge_filename: frotzer-macos-build.json
-            badge_label: macOS build
-            badge_success_color: FFFFFF
+            build_filename: frotzer-macos-build.json
+            build_label: macOS build
+            build_success_color: 000000
             
     steps:
       - name: Clone repositories
@@ -62,21 +73,37 @@ jobs:
 #            exit 1
 #          fi       
 
-      - name: Build dumb frotz for ${{ matrix.os }}
-        run: ${{ matrix.build_command }}
-
-      - name: Set build badge values (failing)
-        if: ${{ failure() }}
+      - name: Build dumb frotz and frotzer deps on ${{ matrix.os }}
         run: |
-          echo "build_status=failing" >> $GITHUB_ENV
+          ${{ matrix.build_command }}
+    
+      - name: Set build badge values (Linux)
+        if: ${{ failure() && contains(matrix.os, 'ubuntu') && env.build_linux_status=='OK' }}
+        run: |
+          echo "env.build_linux_status=NOK" >> $GITHUB_ENV
+          echo "build_status=NOK" >> $GITHUB_ENV
           echo "build_color=${{ env.build_fail_color }}" >> $GITHUB_ENV
+          echo "test_status=failing" >> $GITHUB_ENV
 
-      - name: Set build badge values (success)
+      - name: Set build badge values (macOS)
+        if: ${{ failure() && contains(matrix.os, '18') && env.build_macos_status=='OK' }}
+        run: |
+          echo "env.build_macos_status=NOK" >> $GITHUB_ENV
+          echo "build_status=NOK" >> $GITHUB_ENV
+          echo "build_color=${{ env.build_fail_color }}" >> $GITHUB_ENV
+          echo "test_status=failing" >> $GITHUB_ENV
+          
+      - name: Test frotzer on ${{ matrix.os }}/${{ matrix.node-version }}
         if: ${{ success() }}
         run: |
-          npm ci
-          echo "build_status=passing" >> $GITHUB_ENV
-          echo "build_color=${{ matrix.badge_success_color }}" >> $GITHUB_ENV
+          ${{ npm ci }}
+          ${{ npm test }}
+
+      - name: Set test badge values
+        if: ${{ failure() &&  env.test_status=='passing'}}
+        run: |
+          echo "test_status=failing" >> $GITHUB_ENV
+          echo "test_color=${{ env.test_fail_color }}" >> $GITHUB_ENV
           
       - name: Publish build badge
         if: ${{ always() }}
@@ -84,7 +111,18 @@ jobs:
         with:
           auth: ${{ secrets.GIST_SECRET }}
           gistID: ${{ env.GIST_ID }}
-          filename: ${{ matrix.badge_filename }}
-          label: ${{ matrix.badge_label }}
+          filename: ${{ matrix.build_filename }}
+          label: ${{ matrix.build_label }}
           message: ${{ env.build_status }}
           color: ${{ env.build_color }}
+
+      - name: Publish test badge
+        if: ${{ always() }}
+        uses: schneegans/dynamic-badges-action@v1.1.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: ${{ env.GIST_ID }}
+          filename: ${{ env.test_filename }}
+          label: ${{ env.test_label }}
+          message: ${{ env.test_status }}
+          color: ${{ env.test_color }}
