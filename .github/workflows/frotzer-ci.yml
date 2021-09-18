@@ -72,7 +72,7 @@ jobs:
         if: ${{ success() }}
         run: |
           echo "build_status=passing" >> $GITHUB_ENV
-          echo "build_color=${{ env.build_success_color }}" >> $GITHUB_ENV
+          echo "build_color=${{ matrix.badge_success_color }}" >> $GITHUB_ENV
           
       - name: Create build badge
         if: ${{ always() }}
