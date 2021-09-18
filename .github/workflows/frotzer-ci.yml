@@ -96,8 +96,8 @@ jobs:
       - name: Test frotzer on ${{ matrix.os }}/${{ matrix.node-version }}
         if: ${{ success() }}
         run: |
-          ${{ npm ci }}
-          ${{ npm test }}
+          npm ci
+          npm test
 
       - name: Set test badge values
         if: ${{ failure() &&  env.test_status=='passing'}}
