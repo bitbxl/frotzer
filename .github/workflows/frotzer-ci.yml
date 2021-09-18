@@ -75,7 +75,7 @@ jobs:
 
       # runs only is build on ubuntu fails
       - name: Set build badge values (Linux)
-        if: ${{ failure() && contains(matrix.os, 'ubuntu') && env.build_linux_status=='OK' }}
+        if: ${{ failure() && contains(matrix.os, 'latest') && env.build_linux_status=='OK' }}
         run: |
           echo "env.build_linux_status=NOK" >> $GITHUB_ENV
           echo "build_linux_color=${{ env.build_fail_color }}" >> $GITHUB_ENV
@@ -104,7 +104,7 @@ jobs:
           echo "test_color=${{ env.test_fail_color }}" >> $GITHUB_ENV
           
       - name: Publish build badge (Linux)
-        if: ${{ always() && contains(matrix.os, 'ubuntu') }}
+        if: ${{ always() && contains(matrix.os, 'latest') }}
         uses: schneegans/dynamic-badges-action@v1.1.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
