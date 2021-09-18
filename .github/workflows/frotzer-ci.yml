@@ -102,7 +102,7 @@ jobs:
           echo "test_color=${{ env.test_fail_color }}" >> $GITHUB_ENV
           
       - name: Publish build badge (Linux)
-        if: ${{ always() }}
+        if: ${{ always() && contains(matrix.os, 'ubuntu') }}
         uses: schneegans/dynamic-badges-action@v1.1.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
@@ -113,7 +113,7 @@ jobs:
           color: ${{ env.build_linux_color }}
 
       - name: Publish build badge (macOS)
-        if: ${{ always() }}
+        if: ${{ always() && contains(matrix.os, '18') }}
         uses: schneegans/dynamic-badges-action@v1.1.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
