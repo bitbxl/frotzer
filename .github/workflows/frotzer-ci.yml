@@ -7,13 +7,19 @@ on:
     branches: [ main ]
 
 env:
-  # constants
+  # CONSTANTS
   GIST_ID: 554394d67973a35b66f7b60a24fa0950
-  build_fail_color: FF0000
+  # build badge
+  build_filename: frotzer-build.json
+  build_label: Build
+  build_success_color: success
+  build_fail_color: critical
+  # test badge
   test_filename: frotzer-test.json
   test_label: Tests
-  test_fail_color: FF0000
-  
+  test_success_color: success
+  test_fail_color: critical
+
 jobs:
 
   build:
@@ -23,31 +29,17 @@ jobs:
 
     env:
       # (Initial) status (to be checked and/or set at each job run)
-      build_linux_color: e95420
-      build_macos_color: "000000"
-      build_linux_status: OK
-      build_macos_status: OK
-      test_color: 00FF00
+      build_color: success
+      build_status: OK
+      test_color: success
       test_status: passing
-      
+
     strategy:
       matrix:
-        os: [ubuntu-latest, ubuntu-18.04]
+        os: [ubuntu-latest]
         node-version: [12.x, 14.x]
-        include:
-          - os: ubuntu-latest
-            # constants (ubuntu)
-            build_command: "make -C frotz/ dumb"
-            build_filename: frotzer-linux-build.json
-            build_label: Linux build
-           
-          - os: ubuntu-18.04
-            # constants (macOS)
-            build_command: "make -C frotz/ dumb"
-            build_filename: frotzer-macos-build.json
-            build_label: macOS build
-            
-    steps:      
+
+    steps:
       - name: Clone repositories
         uses: actions/checkout@v2
         with:
@@ -57,40 +49,22 @@ jobs:
         uses: actions/setup-node@v2
         with:
           node-version: ${{ matrix.node-version }}
-     
-#      - name: Build dumb frotz for ${{ matrix.os }}
-#        run: |
-#          if ${{ matrix.build_command }} ; then
-#            echo "build_status=passing" >> $GITHUB_ENV
-#            echo "build_color=${{ matrix.badge_success_color }}" >> $GITHUB_ENV
-#          else
-#            echo "build_status=failing" >> $GITHUB_ENV
-#            echo "build_color=${{ env.build_fail_color }}" >> $GITHUB_ENV
-#            exit 1
-#          fi       
+
 
       - name: Build dumb frotz and frotzer deps on ${{ matrix.os }}
         run: |
-          ${{ matrix.build_command }}
+          make -C frotz/ dumb
 
-      # runs only is build on ubuntu fails
-      - name: Set build badge values (Linux)
-        if: ${{ failure() && contains(matrix.os, 'latest') && env.build_linux_status=='OK' }}
+      # runs only if build fails (and build status is OK)
+      - name: Set build badge values
+        if: ${{ failure() && env.build_status=='OK' }}
         run: |
-          echo "env.build_linux_status=NOK" >> $GITHUB_ENV
-          echo "build_linux_color=${{ env.build_fail_color }}" >> $GITHUB_ENV
+          echo "build_status=NOK" >> $GITHUB_ENV
+          echo "build_color=${{ env.build_fail_color }}" >> $GITHUB_ENV
           echo "test_status=failing" >> $GITHUB_ENV
           echo "test_color=${{ env.test_fail_color }}" >> $GITHUB_ENV
 
-      # runs only is build on macos fails
-      - name: Set build badge values (macOS)
-        if: ${{ failure() && contains(matrix.os, '18') && env.build_macos_status=='OK' }}
-        run: |
-          echo "env.build_macos_status=NOK" >> $GITHUB_ENV
-          echo "build_macos_color=${{ env.build_fail_color }}" >> $GITHUB_ENV
-          echo "test_status=failing" >> $GITHUB_ENV
-          echo "test_color=${{ env.test_fail_color }}" >> $GITHUB_ENV
-          
+
       - name: Test frotzer on ${{ matrix.os }}/${{ matrix.node-version }}
         if: ${{ success() }}
         run: |
@@ -102,29 +76,19 @@ jobs:
         run: |
           echo "test_status=failing" >> $GITHUB_ENV
           echo "test_color=${{ env.test_fail_color }}" >> $GITHUB_ENV
-          
-      - name: Publish build badge (Linux)
-        if: ${{ always() && contains(matrix.os, 'latest') }}
-        uses: schneegans/dynamic-badges-action@v1.1.0
-        with:
-          auth: ${{ secrets.GIST_SECRET }}
-          gistID: ${{ env.GIST_ID }}
-          filename: ${{ matrix.build_filename }}
-          label: ${{ matrix.build_label }}
-          message: ${{ env.build_linux_status }}
-          color: ${{ env.build_linux_color }}
 
-      - name: Publish build badge (macOS)
-        if: ${{ always() && contains(matrix.os, '18') }}
+      - name: Publish build badge
+        if: ${{ always() }}
         uses: schneegans/dynamic-badges-action@v1.1.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
           gistID: ${{ env.GIST_ID }}
-          filename: ${{ matrix.build_filename }}
-          label: ${{ matrix.build_label }}
-          message: ${{ env.build_macos_status }}
-          color: ${{ env.build_macos_color }}
-          
+          filename: ${{ env.build_filename }}
+          label: ${{ env.build_label }}
+          message: ${{ env.build_status }}
+          color: ${{ env.build_color }}
+
+
       - name: Publish test badge
         if: ${{ always() }}
         uses: schneegans/dynamic-badges-action@v1.1.0
