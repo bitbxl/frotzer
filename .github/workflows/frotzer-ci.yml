@@ -19,6 +19,13 @@ env:
   test_label: Tests
   test_success_color: success
   test_fail_color: critical
+    # coverage badge
+  coverage_filename: frotzer-coverage.json
+  coverage_label: Coverage
+  coverage_color: informational
+
+
+
 
 jobs:
 
@@ -33,11 +40,12 @@ jobs:
       build_status: OK
       test_color: success
       test_status: passing
+      coverage_value: -
 
     strategy:
       matrix:
         os: [ubuntu-latest]
-        node-version: [12.x, 14.x]
+        node-version: [14.x]
 
     steps:
       - name: Clone repositories
@@ -69,13 +77,14 @@ jobs:
         if: ${{ success() }}
         run: |
           npm ci
-          npm test
+          echo "coverage_value=$(npm run test:coverage)" >> $GITHUB_ENV
 
       - name: Set test badge values
         if: ${{ failure() &&  env.test_status=='passing'}}
         run: |
           echo "test_status=failing" >> $GITHUB_ENV
           echo "test_color=${{ env.test_fail_color }}" >> $GITHUB_ENV
+          echo "coverage_value=N/A" >> $GITHUB_ENV
 
       - name: Publish build badge
         if: ${{ always() }}
@@ -88,14 +97,13 @@ jobs:
           message: ${{ env.build_status }}
           color: ${{ env.build_color }}
 
-
-      - name: Publish test badge
+      - name: Publish coverage badge
         if: ${{ always() }}
         uses: schneegans/dynamic-badges-action@v1.1.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
           gistID: ${{ env.GIST_ID }}
-          filename: ${{ env.test_filename }}
-          label: ${{ env.test_label }}
-          message: ${{ env.test_status }}
-          color: ${{ env.test_color }}
+          filename: ${{ env.coverage_filename }}
+          label: ${{ env.coverage_label }}
+          message: ${{ env.coverage_value }}
+          color: ${{ env.coverage_color }}
