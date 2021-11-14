@@ -1,14 +1,18 @@
 {
-  "name": "frotzer",
+  "name": "@bitbxl/frotzer",
   "version": "1.0.0",
-  "description": "",
+  "description": "![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/bitbxl/554394d67973a35b66f7b60a24fa0950/raw/frotzer-test.json) ![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/bitbxl/554394d67973a35b66f7b60a24fa0950/raw/frotzer-linux-build.json) ![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/bitbxl/554394d67973a35b66f7b60a24fa0950/raw/frotzer-macos-build.json)",
   "main": "frotzer.js",
   "scripts": {
-      "test": "nyc mocha --timeout=3000",
-      "coverage": "nyc --reporter=text-summary mocha | grep Statements | awk '{print $3}'"
+    "build:dfrotz": "make -C ./frotz/ dumb",
+    "preinstall": "git init && git submodule add -f https://gitlab.com/DavidGriffith/frotz.git ./frotz && npm run build:dfrotz",
+    "version:dfrotz": "./frotz/dfrotz -v | sed 's/^[a-zA-Z ]*\\([0-9.]*\\).*/\\1/' | head -1",
+    "test": "nyc mocha --timeout=3000",
+    "test:coverage": "nyc --timeout=3000 --reporter=text-summary mocha | grep Statements | awk '{print $3}'",
+    "docs": "node node_modules/.bin/jsdoc2md --files frotzer.js > ./docs/api.md"
   },
   "keywords": [],
-  "author": "",
+  "author": "bitbxl",
   "license": "ISC",
   "dependencies": {
     "underscore": "^1.12.1"
@@ -16,7 +20,17 @@
   "devDependencies": {
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
+    "jsdoc": "^3.6.7",
+    "jsdoc-to-markdown": "^7.0.1",
     "mocha": "^8.3.2",
     "nyc": "^15.1.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bitbxl/frotzer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bitbxl/frotzer/issues"
+  },
+  "homepage": "https://github.com/bitbxl/frotzer#readme"
 }
