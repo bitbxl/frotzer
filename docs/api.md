@@ -57,7 +57,7 @@ able to start a game (e.g. the `gamefile`).
 
 **Example**  
 ```js
-const {Frotzer} = require('./frotzer');
+const {Frotzer} = require('frotzer');
 let options = {gamefile: 'Ruins.z5'};
 
 let frotzer = new Frotzer(options);
@@ -353,6 +353,6 @@ directly traceable to the ones passed to dfrotz via the CLI.
 | options.seq.quit_endmarker | <code>String</code> | The string to use as last response after the termination of the dfrotz process. Default is `<END>`. |
 | options.seq.save | <code>Array.&lt;String&gt;</code> | The sequence of commands executed by dfrotz to save a game state. The value `@filename` in the sequence will be substituted by the filename passed to the [save](#Frotzer+save) method. Default is `['save', '@filename']`. |
 | options.seq.restore | <code>Array.&lt;String&gt;</code> | The sequence of commands executed by dfrotz to restore a game state. The value `@filename` in the sequence will be substituted by the filename passed to the [restore](#Frotzer+restore) method. Default is `['restore', '@filename']`. |
-| options.seq.start | <code>Array.&lt;String&gt;</code> | The sequence of commands executed just after starting dfrotz. Defaut is `''`(empty string) meaning that il will be sent just a `\n` (to skip automatically a first request to press a key). |
+| options.seq.start | <code>Array.&lt;String&gt;</code> | The sequence of commands executed just after starting dfrotz. Defaut is `['']`(empty string) meaning that il will be sent just a `\n` (to skip automatically a first request to press a key). |
 | options.seq.start_drop | <code>String</code> | The number of initial response lines to drop after a start. Default is `1` (this tipically removes from the response(s) the dfrotz launch command displayed on the shell). |
 

@@ -34,7 +34,7 @@ const _ = require('underscore');
  * @param {frotzerOpts=} [options] The options to use for the initialization of
  * Frotzer. If they are not passed to the constructor then defaults are used.
  * @example
- * const {Frotzer} = require('./frotzer');
+ * const {Frotzer} = require('frotzer');
  * let options = {gamefile: 'Ruins.z5'};
  *
  * let frotzer = new Frotzer(options);
@@ -645,7 +645,7 @@ function Frotzer(options) {
  * will be substituted by the filename passed to the {@link Frotzer#restore}
  * method. Default is `['restore', '@filename']`.
  * @property {String[]} options.seq.start - The sequence of commands executed
- * just after starting dfrotz. Defaut is `''`(empty string) meaning that il
+ * just after starting dfrotz. Defaut is `['']`(empty string) meaning that il
  * will be sent just a `\n` (to skip automatically a first request to press a
  * key).
  * @property {String} options.seq.start_drop - The number of initial response

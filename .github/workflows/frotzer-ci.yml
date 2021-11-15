@@ -58,7 +58,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-
       - name: Build dumb frotz and frotzer deps on ${{ matrix.os }}
         run: |
           make -C frotz/ dumb
@@ -71,7 +70,6 @@ jobs:
           echo "build_color=${{ env.build_fail_color }}" >> $GITHUB_ENV
           echo "test_status=failing" >> $GITHUB_ENV
           echo "test_color=${{ env.test_fail_color }}" >> $GITHUB_ENV
-
 
       - name: Test frotzer on ${{ matrix.os }}/${{ matrix.node-version }}
         if: ${{ success() }}
