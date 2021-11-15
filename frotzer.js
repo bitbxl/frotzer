@@ -201,7 +201,7 @@ function Frotzer(options) {
 
 
           var dfargs = this.options.dfopts.slice();
-          const gfopt = path.join(__dirname, this.options.gamefile);
+          const gfopt = path.join(__dirname, '../../../' this.options.gamefile);
           dfargs.push(gfopt);
 
           this.dfrotz = spawn(path.join(__dirname, this.options.dfexec), dfargs);
@@ -622,8 +622,7 @@ function Frotzer(options) {
  * of the `dfrotz`'s options.
  * @property {String} options.gamefile - The gamefile to load when starting
  * dfrotz. Providing this option is obviousy required to be able to start a
- * game. The base directory is the one specified in the `savedir` field of the
- * options (module root as base path).
+ * game (project root as base path).
  * @property {String} options.savedir - The base directory to use when storing
  * and loading gamefiles. The base path is the module root. Default is `./
  * saves`.
