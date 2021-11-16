@@ -34,7 +34,7 @@ const _ = require('underscore');
  * @param {frotzerOpts=} [options] The options to use for the initialization of
  * Frotzer. If they are not passed to the constructor then defaults are used.
  * @example
- * const {Frotzer} = require('frotzer');
+ * const {Frotzer} = require('@bitbxl/frotzer');
  * let options = {gamefile: 'Ruins.z5'};
  *
  * let frotzer = new Frotzer(options);
@@ -136,6 +136,7 @@ function Frotzer(options) {
    * @async
    * @param {frotzerOpts=} [options] The options to use for the initialization
    * of Frotzer. They overwrite the existing ones.
+   * @return {Promise<null>} A `null` value.
    * @throws {Error} if Frotzer is in `running` state.
    * @example
    * // Frotzer has been instantiated with some options passed via the
@@ -173,7 +174,7 @@ function Frotzer(options) {
    * overwrite the existing ones. Note that these passed values will
    * _overwrite_ some of the currently set options.
    * @async
-   * @return {String[]} The response(s) of dfrotz after the start sequence
+   * @return {Promise<String[]>} The response(s) of dfrotz after the start sequence
    * (either a single value or an array of values)
    * @param {frotzerOpts=} [options] The options to apply before starting
    * Frotzer. They overwrite the existing ones.
@@ -199,9 +200,8 @@ function Frotzer(options) {
         // options are valid
         if (this.state === 'ready') {
 
-
           var dfargs = this.options.dfopts.slice();
-          const gfopt = path.join(__dirname, '../../../' this.options.gamefile);
+          const gfopt = path.join(process.cwd(), this.options.gamedir, this.options.gamefile);
           dfargs.push(gfopt);
 
           this.dfrotz = spawn(path.join(__dirname, this.options.dfexec), dfargs);
@@ -257,7 +257,7 @@ function Frotzer(options) {
    * returns the dfrotz response. If multiple commands are passed then an
    * array containing all the responses is returned.
    * @async
-   * @return {Promise} The response(s) of dfrotz (either a single value or an
+   * @return {Promise<String|String[]>} The response(s) of dfrotz (either a single value or an
    * array of values)
    * @param {...(String|String[])} commands The command(s) to be passed to
    * dfrotz
@@ -349,6 +349,7 @@ function Frotzer(options) {
    * @async
    * @param {frotzerOpts=} [text] The raw text to pass to dfrotz. Note that an
    * ending `\n` shall be included to have dfrotz processing the commands.
+   * @return {Promise<null>} A `null` value.
    * @throws {Error} if Frotzer is not in `running` state.
    * @example
    * // dfrotz requests the player to use the arrow keys to control the game.
@@ -384,21 +385,21 @@ function Frotzer(options) {
    * Frotzer. `save()` executes the sequence of commands in dfrotz as specified
    * in the `seq.save` field of the {@link frotzerOpts} structure, which can be
    * customized. `save()` takes as imput the name of the file in which the game
-   * state has to be stored. The base directory to use can be specified in the
+   * state has to be stored. The directory to use can be specified in the
    * `savedir` field of the Frotzer options (see {@link frotzerOpts}).
    * @async
    * @param {String} filename The name of the file in which the game state has
    * to be stored.
-   * @return {Promise} The response(s) of dfrotz (either a single value or an
+   * @return {Promise<String|String[]>} The response(s) of dfrotz (either a single value or an
    * array of values)
    * @throws {Error} if Frotzer is not in `running` state.
    * @example
-   * // Frotzer is in running state. The default base dir in the options is
-   * // '.saves'.
+   * // Frotzer is in running state. The default save directory in the options is
+   * // './'.
    * //
    * await frotzer.save('myGame.qzl');
-   * // The game state is saved in the file `saves/myGame.qzl` located in
-   * // the module root.
+   * // The game state is saved in the file 'myGame.qzl' located in
+   * // the project root.
    */
   this.save = async function(filename) {
 
@@ -406,7 +407,8 @@ function Frotzer(options) {
 
       if (this.state === 'running') {
 
-        var savedir = path.join(__dirname, this.options.savedir, filename);
+
+        var savedir = path.join(process.cwd(), this.options.savedir, filename);
 
         if (fs.existsSync(savedir)) {
           fs.unlinkSync(savedir);
@@ -438,23 +440,23 @@ function Frotzer(options) {
    * Frotzer. `restore()` executes the sequence of commands in dfrotz as
    * specified in the `seq.restore` field of the {@link frotzerOpts} structure,
    * which can be customized. `restore()` takes as imput the name of the file
-   * from  which the game state has to be restored. The base direcotry to use
+   * from  which the game state has to be restored. The direcotry to use
    * can be specified in the `savedir` field of the Frotzer options (see
    * {@link frotzerOpts}).
    * @async
    * @param {String} filename The name of the file from which the game state
    * has to be restored.
-   * @return {Promise} The response(s) of dfrotz (either single value or an
+   * @return {Promise<String|String[]>} The response(s) of dfrotz (either single value or an
    * array of values)
    * @throws {Error} if a file having the input filename is not existing.
    * @throws {Error} if Frotzer is not in `running` state.
    * @example
-   * // Frotzer is in running state. The default base dir in the options is
-   * // '.saves'.
+   * // Frotzer is in running state. The default save directory in the options is
+   * // './'.
    * //
    * await frotzer.restore('myGame.qzl');
-   * // The game state is restored from the file `saves/myGame.qzl` located in
-   * // the module root.
+   * // The game state is restored from the file 'myGame.qzl' located in
+   * // the project root.
    */
   this.restore = async function(filename) {
 
@@ -462,11 +464,11 @@ function Frotzer(options) {
 
       if (this.state === 'running') {
 
-        var restpath = path.join(__dirname, this.options.savedir, filename);
+        var restpath = path.join(process.cwd(), this.options.savedir, filename);
 
         fs.access(restpath, (err) => {
           if (err) {
-            this.kill().then(() => {
+            this.quit().then(() => {
               reject(new Error("restore(): The game cannot be restored, the file doesn't exist"));
             });
 
@@ -503,7 +505,7 @@ function Frotzer(options) {
    * customized. The last string in the response(s) returned by `quit` is a
    * default value specified by `seq.quit_endmarker` in the Frotzer's options,
    * which can be also customized.
-   * @return {Promise} The response(s) of dfrotz after the quit sequence
+   * @return {Promise<String|String[]>} The response(s) of dfrotz after the quit sequence
    * followed by an end marker
    * @throws {Error} if Frotzer is not in `running` state.
    * @example
@@ -543,6 +545,7 @@ function Frotzer(options) {
    * {@link Frotzer#quit} the termination is commanded at OS level. The state
    * is moved to `ready` at the end of the execution.
    * @async
+   * @return {Promise<null>} A `null` value.
    * @throws {Error} if Frotzer is not in `running` state.
    * @example
    * // Frotzer is in running state.
@@ -587,7 +590,8 @@ function Frotzer(options) {
       dfexec: './frotz/dfrotz',
       dfopts: ['-m'],
       gamefile: null,
-      savedir: './saves',
+      gamedir:'./',
+      savedir: './',
       filter: 'compact'
     }
 
@@ -606,8 +610,8 @@ function Frotzer(options) {
 
   }
 
-} // end Frotzer class
 
+} // end Frotzer class
 
 
 /**
@@ -616,16 +620,17 @@ function Frotzer(options) {
  * @typedef frotzerOpts
  * @type {Object}
  * @property {String} options.dfexec - The path of the executable used to launch
- *  dfrotz. The base path is the module root. Default is `./frotz/dfrotz`.
+ *  dfrotz. The base path is the _module root_. Default is `./frotz/dfrotz`.
  * @property {String} options.dfopts - The options (array) to pass to dfrotz.
  *  Default is `['-m']` (this switches off the MORE prompts). See [here]{@link https://gitlab.com/DavidGriffith/frotz/-/raw/master/doc/dfrotz.6} for a list
  * of the `dfrotz`'s options.
  * @property {String} options.gamefile - The gamefile to load when starting
  * dfrotz. Providing this option is obviousy required to be able to start a
- * game (project root as base path).
- * @property {String} options.savedir - The base directory to use when storing
- * and loading gamefiles. The base path is the module root. Default is `./
- * saves`.
+ * game.
+ * @property {String} options.gamedir - The directory containing the
+ * gamefiles. Base path is the project root. Default is `./`.
+ * @property {String} options.savedir - The directory to use to store
+ * and load game states. Base path is the project root. Default is `./`.
  * @property {String} options.filter - The filter to use to render the result
  * of the commands returned by dfrotz.
  * Available options are `oneline`(all compressed in one line, no prompt),

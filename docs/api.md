@@ -29,14 +29,14 @@ Frotzer instance (which wraps a dfrotz process).
     * [.state](#Frotzer+state) : <code>String</code>
     * [.options](#Frotzer+options) : [<code>frotzerOpts</code>](#frotzerOpts)
     * [.dfrotz](#Frotzer+dfrotz) : [<code>ChildProcess</code>](https://nodejs.org/api/child_process.html#child_process_class_childprocess)
-    * [.init([options])](#Frotzer+init)
-    * [.start([options])](#Frotzer+start) ⇒ <code>Array.&lt;String&gt;</code>
-    * [.command(...commands)](#Frotzer+command) ⇒ <code>Promise</code>
-    * [.send([text])](#Frotzer+send)
-    * [.save(filename)](#Frotzer+save) ⇒ <code>Promise</code>
-    * [.restore(filename)](#Frotzer+restore) ⇒ <code>Promise</code>
-    * [.quit()](#Frotzer+quit) ⇒ <code>Promise</code>
-    * [.kill()](#Frotzer+kill)
+    * [.init([options])](#Frotzer+init) ⇒ <code>Promise.&lt;null&gt;</code>
+    * [.start([options])](#Frotzer+start) ⇒ <code>Promise.&lt;Array.&lt;String&gt;&gt;</code>
+    * [.command(...commands)](#Frotzer+command) ⇒ <code>Promise.&lt;(String\|Array.&lt;String&gt;)&gt;</code>
+    * [.send([text])](#Frotzer+send) ⇒ <code>Promise.&lt;null&gt;</code>
+    * [.save(filename)](#Frotzer+save) ⇒ <code>Promise.&lt;(String\|Array.&lt;String&gt;)&gt;</code>
+    * [.restore(filename)](#Frotzer+restore) ⇒ <code>Promise.&lt;(String\|Array.&lt;String&gt;)&gt;</code>
+    * [.quit()](#Frotzer+quit) ⇒ <code>Promise.&lt;(String\|Array.&lt;String&gt;)&gt;</code>
+    * [.kill()](#Frotzer+kill) ⇒ <code>Promise.&lt;null&gt;</code>
 
 <a name="new_Frotzer_new"></a>
 
@@ -57,7 +57,7 @@ able to start a game (e.g. the `gamefile`).
 
 **Example**  
 ```js
-const {Frotzer} = require('frotzer');
+const {Frotzer} = require('@bitbxl/frotzer');
 let options = {gamefile: 'Ruins.z5'};
 
 let frotzer = new Frotzer(options);
@@ -100,13 +100,14 @@ game has not been started yet.
 **Kind**: instance property of [<code>Frotzer</code>](#Frotzer)  
 <a name="Frotzer+init"></a>
 
-### frotzer.init([options])
+### frotzer.init([options]) ⇒ <code>Promise.&lt;null&gt;</code>
 This method is used to initialize Frotzer before starting a game (if not
 done already at instantiation time using the constructor). Typically the
 [frotzerOpts](#frotzerOpts) structure is passed to change the options currently
 set in Frotzer. The passed values will _overwrite_ the existing ones.
 
 **Kind**: instance method of [<code>Frotzer</code>](#Frotzer)  
+**Returns**: <code>Promise.&lt;null&gt;</code> - A `null` value.  
 **Throws**:
 
 - <code>Error</code> if Frotzer is in `running` state.
@@ -127,7 +128,7 @@ await frotzer.init(options);
 ```
 <a name="Frotzer+start"></a>
 
-### frotzer.start([options]) ⇒ <code>Array.&lt;String&gt;</code>
+### frotzer.start([options]) ⇒ <code>Promise.&lt;Array.&lt;String&gt;&gt;</code>
 This method is used to start Frotzer. When started, a dfrotz process is
 created in the background. The process is controlled via in/out streams
 to/from the dfrotz CLI. A [frotzerOps](frotzerOps) structure can be passed to
@@ -135,7 +136,7 @@ overwrite the existing ones. Note that these passed values will
 _overwrite_ some of the currently set options.
 
 **Kind**: instance method of [<code>Frotzer</code>](#Frotzer)  
-**Returns**: <code>Array.&lt;String&gt;</code> - The response(s) of dfrotz after the start sequence
+**Returns**: <code>Promise.&lt;Array.&lt;String&gt;&gt;</code> - The response(s) of dfrotz after the start sequence
 (either a single value or an array of values)  
 **Throws**:
 
@@ -159,7 +160,7 @@ await frotzer.start(options);
 ```
 <a name="Frotzer+command"></a>
 
-### frotzer.command(...commands) ⇒ <code>Promise</code>
+### frotzer.command(...commands) ⇒ <code>Promise.&lt;(String\|Array.&lt;String&gt;)&gt;</code>
 This method is used to send commands to the dfrotz background process.
 The commands are streamed directly to the dfrotz CLI. This method
 accepts one or more commands in the form of multiple input arguments and/or
@@ -168,7 +169,7 @@ returns the dfrotz response. If multiple commands are passed then an
 array containing all the responses is returned.
 
 **Kind**: instance method of [<code>Frotzer</code>](#Frotzer)  
-**Returns**: <code>Promise</code> - The response(s) of dfrotz (either a single value or an
+**Returns**: <code>Promise.&lt;(String\|Array.&lt;String&gt;)&gt;</code> - The response(s) of dfrotz (either a single value or an
 array of values)  
 **Throws**:
 
@@ -199,7 +200,7 @@ let responses = await frotzer.command(['talk to Ada', 'hi!']);
 ```
 <a name="Frotzer+send"></a>
 
-### frotzer.send([text])
+### frotzer.send([text]) ⇒ <code>Promise.&lt;null&gt;</code>
 This method is used to send _raw_ text to the dfrotz background process.
 The text is streamed directly to the dfrotz CLI. `send()` can be useful
 when the player is requested to interact with the game by using keyboard
@@ -207,6 +208,7 @@ keys. To send commands it is better use the [command](#Frotzer+command) method
 which can process multiple of them at the same time.
 
 **Kind**: instance method of [<code>Frotzer</code>](#Frotzer)  
+**Returns**: <code>Promise.&lt;null&gt;</code> - A `null` value.  
 **Throws**:
 
 - <code>Error</code> if Frotzer is not in `running` state.
@@ -227,16 +229,16 @@ frotzer.send('go west\n');
 ```
 <a name="Frotzer+save"></a>
 
-### frotzer.save(filename) ⇒ <code>Promise</code>
+### frotzer.save(filename) ⇒ <code>Promise.&lt;(String\|Array.&lt;String&gt;)&gt;</code>
 This method is used to save the state of the game currently running in
 Frotzer. `save()` executes the sequence of commands in dfrotz as specified
 in the `seq.save` field of the [frotzerOpts](#frotzerOpts) structure, which can be
 customized. `save()` takes as imput the name of the file in which the game
-state has to be stored. The base directory to use can be specified in the
+state has to be stored. The directory to use can be specified in the
 `savedir` field of the Frotzer options (see [frotzerOpts](#frotzerOpts)).
 
 **Kind**: instance method of [<code>Frotzer</code>](#Frotzer)  
-**Returns**: <code>Promise</code> - The response(s) of dfrotz (either a single value or an
+**Returns**: <code>Promise.&lt;(String\|Array.&lt;String&gt;)&gt;</code> - The response(s) of dfrotz (either a single value or an
 array of values)  
 **Throws**:
 
@@ -249,26 +251,26 @@ array of values)
 
 **Example**  
 ```js
-// Frotzer is in running state. The default base dir in the options is
-// '.saves'.
+// Frotzer is in running state. The default save directory in the options is
+// './'.
 //
 await frotzer.save('myGame.qzl');
-// The game state is saved in the file `saves/myGame.qzl` located in
-// the module root.
+// The game state is saved in the file 'myGame.qzl' located in
+// the project root.
 ```
 <a name="Frotzer+restore"></a>
 
-### frotzer.restore(filename) ⇒ <code>Promise</code>
+### frotzer.restore(filename) ⇒ <code>Promise.&lt;(String\|Array.&lt;String&gt;)&gt;</code>
 This method is used to restore the state of the game currently running in
 Frotzer. `restore()` executes the sequence of commands in dfrotz as
 specified in the `seq.restore` field of the [frotzerOpts](#frotzerOpts) structure,
 which can be customized. `restore()` takes as imput the name of the file
-from  which the game state has to be restored. The base direcotry to use
+from  which the game state has to be restored. The direcotry to use
 can be specified in the `savedir` field of the Frotzer options (see
 [frotzerOpts](#frotzerOpts)).
 
 **Kind**: instance method of [<code>Frotzer</code>](#Frotzer)  
-**Returns**: <code>Promise</code> - The response(s) of dfrotz (either single value or an
+**Returns**: <code>Promise.&lt;(String\|Array.&lt;String&gt;)&gt;</code> - The response(s) of dfrotz (either single value or an
 array of values)  
 **Throws**:
 
@@ -282,16 +284,16 @@ array of values)
 
 **Example**  
 ```js
-// Frotzer is in running state. The default base dir in the options is
-// '.saves'.
+// Frotzer is in running state. The default save directory in the options is
+// './'.
 //
 await frotzer.restore('myGame.qzl');
-// The game state is restored from the file `saves/myGame.qzl` located in
-// the module root.
+// The game state is restored from the file 'myGame.qzl' located in
+// the project root.
 ```
 <a name="Frotzer+quit"></a>
 
-### frotzer.quit() ⇒ <code>Promise</code>
+### frotzer.quit() ⇒ <code>Promise.&lt;(String\|Array.&lt;String&gt;)&gt;</code>
 This method is used to quit dfrotz and pass Frotzer to `ready` state.
 `quit` executes a sequence of dfrotz commands as specified in the
 `seq.quit` field of the [frotzerOpts](#frotzerOpts) structure, which can be
@@ -300,7 +302,7 @@ default value specified by `seq.quit_endmarker` in the Frotzer's options,
 which can be also customized.
 
 **Kind**: instance method of [<code>Frotzer</code>](#Frotzer)  
-**Returns**: <code>Promise</code> - The response(s) of dfrotz after the quit sequence
+**Returns**: <code>Promise.&lt;(String\|Array.&lt;String&gt;)&gt;</code> - The response(s) of dfrotz after the quit sequence
 followed by an end marker  
 **Throws**:
 
@@ -315,13 +317,14 @@ await frotzer.quit();
 ```
 <a name="Frotzer+kill"></a>
 
-### frotzer.kill()
+### frotzer.kill() ⇒ <code>Promise.&lt;null&gt;</code>
 This method is used to kill the dfrotz process and pass Frotzer to `ready`
 state. `kill()` is another way to terminate dfrotz. Differently from
 [quit](#Frotzer+quit) the termination is commanded at OS level. The state
 is moved to `ready` at the end of the execution.
 
 **Kind**: instance method of [<code>Frotzer</code>](#Frotzer)  
+**Returns**: <code>Promise.&lt;null&gt;</code> - A `null` value.  
 **Throws**:
 
 - <code>Error</code> if Frotzer is not in `running` state.
@@ -344,10 +347,11 @@ directly traceable to the ones passed to dfrotz via the CLI.
 
 | Name | Type | Description |
 | --- | --- | --- |
-| options.dfexec | <code>String</code> | The path of the executable used to launch  dfrotz. The base path is the module root. Default is `./frotz/dfrotz`. |
+| options.dfexec | <code>String</code> | The path of the executable used to launch  dfrotz. The base path is the _module root_. Default is `./frotz/dfrotz`. |
 | options.dfopts | <code>String</code> | The options (array) to pass to dfrotz.  Default is `['-m']` (this switches off the MORE prompts). See [here](https://gitlab.com/DavidGriffith/frotz/-/raw/master/doc/dfrotz.6) for a list of the `dfrotz`'s options. |
-| options.gamefile | <code>String</code> | The gamefile to load when starting dfrotz. Providing this option is obviousy required to be able to start a game. The base directory is the one specified in the `savedir` field of the options (module root as base path). |
-| options.savedir | <code>String</code> | The base directory to use when storing and loading gamefiles. The base path is the module root. Default is `./ saves`. |
+| options.gamefile | <code>String</code> | The gamefile to load when starting dfrotz. Providing this option is obviousy required to be able to start a game. |
+| options.gamedir | <code>String</code> | The directory containing the gamefiles. Base path is the project root. Default is `./`. |
+| options.savedir | <code>String</code> | The directory to use to store and load game states. Base path is the project root. Default is `./`. |
 | options.filter | <code>String</code> | The filter to use to render the result of the commands returned by dfrotz. Available options are `oneline`(all compressed in one line, no prompt), `compact` (removes trailing spaces, minimizes the number of `\n\r`, no prompt) and `none` (no filter applied). Default is `compact`. |
 | options.seq.quit | <code>Array.&lt;String&gt;</code> | The sequence of commands executed in dfrotz to quit the game. Default is `['quit', 'yes']`. |
 | options.seq.quit_endmarker | <code>String</code> | The string to use as last response after the termination of the dfrotz process. Default is `<END>`. |

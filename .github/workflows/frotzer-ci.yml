@@ -19,11 +19,14 @@ env:
   test_label: Tests
   test_success_color: success
   test_fail_color: critical
-    # coverage badge
+  # coverage badge
   coverage_filename: frotzer-coverage.json
   coverage_label: Coverage
   coverage_color: informational
-
+  # dfrotz version badge
+  dfversion_filename: frotzer-dfversion.json
+  dfversion_label: dfrotz
+  dfversion_color: blueviolet
 
 
 
@@ -40,7 +43,8 @@ jobs:
       build_status: OK
       test_color: success
       test_status: passing
-      coverage_value: -
+      coverage_value: N/A
+      dfversion_value: N/A
 
     strategy:
       matrix:
@@ -75,6 +79,8 @@ jobs:
         if: ${{ success() }}
         run: |
           npm ci
+          npm run docs
+          echo "dfversion_value=$(npm run version:dfrotz)" >> $GITHUB_ENV
           echo "coverage_value=$(npm run test:coverage)" >> $GITHUB_ENV
 
       - name: Set test badge values
@@ -105,3 +111,14 @@ jobs:
           label: ${{ env.coverage_label }}
           message: ${{ env.coverage_value }}
           color: ${{ env.coverage_color }}
+
+      - name: Publish dfrotz version badge
+        if: ${{ always() }}
+        uses: schneegans/dynamic-badges-action@v1.1.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: ${{ env.GIST_ID }}
+          filename: ${{ env.dfversion_filename }}
+          label: ${{ env.dfversion_label }}
+          message: ${{ env.dfversion_value }}
+          color: ${{ env.dfversion_color }}

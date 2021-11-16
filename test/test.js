@@ -22,7 +22,9 @@ describe('frotzer', function() {
   var filepath;
 
   var options = {
-    gamefile: './test/Ruins.z5'
+    gamefile: 'Ruins.z5',
+    gamedir: './test',
+    savedir: './test'
     //savedir: './saves'
     //dfexec: './frotz/dfrotz'
   };
@@ -285,7 +287,7 @@ describe('frotzer', function() {
 
     beforeEach(function() {
       frotzer = new Frotzer();
-      filepath = path.join(__dirname, '../saves', 'ruins01.qzl');
+      filepath = path.join(__dirname, 'ruins01.qzl');
     });
 
 
@@ -333,7 +335,7 @@ describe('frotzer', function() {
 
     beforeEach(function() {
       frotzer = new Frotzer();
-      filepath = path.join(__dirname, '../saves', 'ruins01.qzl');
+      filepath = path.join(__dirname, 'ruins01.qzl');
     });
 
     it('should restore a game', async () => {
