@@ -80,7 +80,7 @@ jobs:
         run: |
           npm ci
           npm run docs
-          echo "dfversion_value=$(npm run version:dfrotz)" >> $GITHUB_ENV
+          echo "dfversion_value=2.54" >> $GITHUB_ENV
           echo "coverage_value=$(npm run test:coverage)" >> $GITHUB_ENV
 
       - name: Set test badge values
