@@ -1,6 +1,6 @@
 
 ## Frotzer
-![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/bitbxl/554394d67973a35b66f7b60a24fa0950/raw/frotzer-test.json) ![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/bitbxl/554394d67973a35b66f7b60a24fa0950/raw/frotzer-build.json) ![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/bitbxl/554394d67973a35b66f7b60a24fa0950/raw/frotzer-coverage.json) ![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/bitbxl/554394d67973a35b66f7b60a24fa0950/raw/frotzer-dfversion.json)
+![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/bitbxl/554394d67973a35b66f7b60a24fa0950/raw/frotzer-test.json) ![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/bitbxl/554394d67973a35b66f7b60a24fa0950/raw/frotzer-build.json) ![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/bitbxl/554394d67973a35b66f7b60a24fa0950/raw/frotzer-coverage.json) ![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/bitbxl/677c357466d848a20375d156b667d2c0/raw/ac517236bb72f0ae4e94ba28519ace02fefa8749/frotzer-dfver.json)
 
 This is a minimal but yet complete javascript wrapper of dumb frotz (dfrotz)
  running on Node.js. Frotzer is packaged as a module exposing its [API](docs/api.md) via a single
