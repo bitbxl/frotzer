@@ -24,7 +24,7 @@ env:
   coverage_label: Coverage
   coverage_color: informational
   # dfrotz version badge
-  dfversion_filename: frotzer-dfversion.json
+  dfversion_filename: frotzer-dfver.json
   dfversion_label: dfrotz
   dfversion_color: blueviolet
 
