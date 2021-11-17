@@ -8,7 +8,10 @@ on:
 
 env:
   # CONSTANTS
-  GIST_ID: 554394d67973a35b66f7b60a24fa0950
+  build_GIST_ID: 554394d67973a35b66f7b60a24fa0950
+  test_GIST_ID: 52ed6d2926c3abdf270778e4bf1ddeeb
+  cov_GIST_ID: 2133ec985f87c826f4a8c6cbcf550462
+  ver_GIST_ID: 677c357466d848a20375d156b667d2c0
   # build badge
   build_filename: frotzer-build.json
   build_label: Build
@@ -93,18 +96,29 @@ jobs:
         uses: schneegans/dynamic-badges-action@v1.1.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
-          gistID: ${{ env.GIST_ID }}
+          gistID: ${{ env.build_GIST_ID }}
           filename: ${{ env.build_filename }}
           label: ${{ env.build_label }}
           message: ${{ env.build_status }}
           color: ${{ env.build_color }}
+
+      - name: Publish test badge
+        if: ${{ always() }}
+        uses: schneegans/dynamic-badges-action@v1.1.0
+        with:
+          auth: ${{ secrets.GIST_SECRET }}
+          gistID: ${{ env.test_GIST_ID }}
+          filename: ${{ env.test_filename }}
+          label: ${{ env.test_label }}
+          message: ${{ env.test_status }}
+          color: ${{ env.test_color }}
 
       - name: Publish coverage badge
         if: ${{ always() }}
         uses: schneegans/dynamic-badges-action@v1.1.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
-          gistID: ${{ env.GIST_ID }}
+          gistID: ${{ env.cov_GIST_ID }}
           filename: ${{ env.coverage_filename }}
           label: ${{ env.coverage_label }}
           message: ${{ env.coverage_value }}
@@ -115,7 +129,7 @@ jobs:
         uses: schneegans/dynamic-badges-action@v1.1.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
-          gistID: ${{ env.GIST_ID }}
+          gistID: ${{ env.ver_GIST_ID }}
           filename: ${{ env.dfversion_filename }}
           label: ${{ env.dfversion_label }}
           message: ${{ env.dfversion_value }}
