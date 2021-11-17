@@ -28,8 +28,6 @@ env:
   dfversion_label: dfrotz
   dfversion_color: blueviolet
 
-
-
 jobs:
 
   build:
