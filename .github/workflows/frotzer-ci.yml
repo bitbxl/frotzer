@@ -44,8 +44,8 @@ jobs:
       build_status: OK
       test_color: ${{ env.test_success_color }}
       test_status: passing
-      coverage_value: 100%
-      dfversion_value: -
+      coverage_value: N/A
+      dfversion_value: N/A
 
     strategy:
       matrix:
