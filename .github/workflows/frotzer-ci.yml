@@ -11,7 +11,7 @@ env:
   build_GIST_ID: 554394d67973a35b66f7b60a24fa0950
   test_GIST_ID: 52ed6d2926c3abdf270778e4bf1ddeeb
   cov_GIST_ID: 2133ec985f87c826f4a8c6cbcf550462
-  ver_GIST_ID: 677c357466d848a20375d156b667d2c0
+  dfver_GIST_ID: 677c357466d848a20375d156b667d2c0
   # build badge
   build_filename: frotzer-build.json
   build_label: Build
@@ -40,12 +40,12 @@ jobs:
 
     env:
       # (Initial) status (to be checked and/or set at each job run)
-      build_color: success
+      build_color: ${{ env.build_success_color }}
       build_status: OK
-      test_color: success
+      test_color: ${{ env.test_success_color }}
       test_status: passing
-      coverage_value: N/A
-      dfversion_value: N/A
+      coverage_value: 100%
+      dfversion_value: -
 
     strategy:
       matrix:
@@ -68,23 +68,24 @@ jobs:
           make -C frotz/ dumb
 
       # runs only if build fails (and build status is OK)
-      - name: Set build badge values
+      - name: Set badges values after build
         if: ${{ failure() && env.build_status=='OK' }}
         run: |
           echo "build_status=NOK" >> $GITHUB_ENV
           echo "build_color=${{ env.build_fail_color }}" >> $GITHUB_ENV
           echo "test_status=failing" >> $GITHUB_ENV
           echo "test_color=${{ env.test_fail_color }}" >> $GITHUB_ENV
+          echo "coverage_value=N/A" >> $GITHUB_ENV
+          echo "dfversion_value=N/A" >> $GITHUB_ENV
 
       - name: Test frotzer on ${{ matrix.os }}/${{ matrix.node-version }}
         if: ${{ success() }}
         run: |
           npm ci
-          npm run docs
           echo "dfversion_value=$(npm run --silent version:dfrotz)" >> $GITHUB_ENV
           echo "coverage_value=$(npm run --silent test:coverage)" >> $GITHUB_ENV
 
-      - name: Set test badge values
+      - name: Set badge values after tests
         if: ${{ failure() &&  env.test_status=='passing'}}
         run: |
           echo "test_status=failing" >> $GITHUB_ENV
@@ -129,7 +130,7 @@ jobs:
         uses: schneegans/dynamic-badges-action@v1.1.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
-          gistID: ${{ env.ver_GIST_ID }}
+          gistID: ${{ env.dfver_GIST_ID }}
           filename: ${{ env.dfversion_filename }}
           label: ${{ env.dfversion_label }}
           message: ${{ env.dfversion_value }}
