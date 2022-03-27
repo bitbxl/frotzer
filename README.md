@@ -4,29 +4,30 @@
 
 This is a minimal but yet complete javascript wrapper of dumb frotz (dfrotz)
  running on Node.js. Frotzer is packaged as a module exposing its [API](docs/api.md) via a single
- class. The latest dfrotz C code is automatically downloaded from the Frotz [official repository](https://gitlab.com/DavidGriffith/frotz) and compiled at installation time in the module directory.
+ class. When the installation is launched, the latest dfrotz C code is automatically downloaded from the Frotz [official repository](https://gitlab.com/DavidGriffith/frotz) and compiled at installation time in the module directory.
 
- Frotzer's main application would be the creation of bots and of testing enviroments
- for [Inform6](https://www.inform-fiction.org/)/[Inform7](http://inform7.com/) games and for the development of their web frontends.
+ Frotzer's main use is the creation of bots or testing enviroments
+ for [Inform6](https://www.inform-fiction.org/)/[Inform7](http://inform7.com/) games and the development of their web frontends.
 
 
 ## Getting Started
 
 ### Dependencies
 
-* GNU Linux (e.g. Ubuntu, Fedora, etc.) or MacOS (**no Windows**)
+* GNU Linux (e.g. Ubuntu, etc.) or MacOS (note: **no Windows**)
 * Underscore.js (installed automatically by npm)
-* dfrotz (code automatically built at installation time from the included git submodule)
+* dfrotz (code automatically built at installation time from the official git repository)
 
 ### Installation
-To use Frotzer in your project, run:
+To use Frotzer in your Node.js project, run:
 ```javascript
 npm i @bitbxl/frotzer
 ```
 
 ### Usage
 
-A typical (short) workflow using the Inform6 demo adventure (Ruins):
+Frotzer's behaviour is driven by a set of options that can be passed via the constructor. A typical (short) workflow with the Inform6 demo adventure (Ruins)
+using default options:
 ```javascript
 const {Frotzer} = require('@bitbxl/frotzer');
 
@@ -35,15 +36,27 @@ let frotzer = new Frotzer({gamefile: 'Ruins.z5'});
 (async () => {
 
   let responses = await frotzer.start();
+  // responses contains:
   // ['[Please press SPACE to begin.]', 'Days of searching, days of thirsty
   // hacking through the briars of the forest, but at last your patience was
   // rewarded. A discovery! (etc...)']
 
-  let responses = await frotzer.command(['look', 'pick mushroom', 'go east']);
-  // ...
+  let responses = await frotzer.command(['look', 'inventory', 'pick mushroom']);
+  // responses contains:
+  // [Or so your notes call this low escarpment of limestone, but the rainforest has
+  // claimed it back. Dark olive trees crowd in on all sides, the air steams with the
+  // mist of a warm recent rain, midges hang in the air. (etc...),
+  // 'You're carrying: Waldeck's Mayan dictionary a sodium lamp a sketch-map of
+  // Quintana Roo', 'You pick the mushroom, neatly cleaving its thin stalk.]
 
-  await frotzer.save('myGame.qzl');
-  await frotzer.quit();
+  let responses = await frotzer.save('myGame.qzl');
+  // responses contains:
+  // ['Please enter a filename [Ruins.qzl]:', 'Done']
+
+
+  let responses = await frotzer.quit();
+  // responses contains:
+  // ['Are you sure you want to quit?', '<END>']
 
 }
 ```

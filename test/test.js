@@ -22,30 +22,50 @@ describe('frotzer', function() {
   var filepath;
 
   var options = {
-    gamefile: 'Ruins.z5',
-    gamedir: './test',
+    storyfile: 'Ruins.z5',
+    storydir: './test',
     savedir: './test'
-    //savedir: './saves'
-    //dfexec: './frotz/dfrotz'
   };
 
+  var defOptions = {
+    dfexec: './frotz/dfrotz',
+    dfopts: ['-m'],
+    storyfile: null,
+    storydir: './',
+    savedir: './',
+    filter: 'compact',
+    seq: {
+      quit: ['quit', 'yes'],
+      quit_endmarker: '<END>',
+      save: ['save', '@filename'],
+      restore: ['restore', '@filename'],
+      start: [''],
+      start_drop: 1
+    }
+  };
 
 
   describe('#Frotzer()', function() {
 
-
-    it('should set frotzer\'s default options', async () => {
-
+    beforeEach(function() {
       frotzer = new Frotzer();
-      assert.isFalse(_.isEmpty(frotzer.options));
-
     });
 
+    it('should set frotzer\'s default options', async () => {
+      assert.isTrue(_.isEqual(frotzer.options, defOptions));
+    });
+
+
     it('should set frotzer\'s options', async () => {
+      await frotzer.init(options);
+      var keys = ['storyfile', 'storydir', 'savedir'];
+      assert.isTrue(_.isEqual(_.pick(options, keys), _.pick(frotzer.options, keys)));
+      assert.isTrue(_.isEqual(_.omit(defOptions, keys), _.omit(frotzer.options, keys)));
+    });
 
-      frotzer = new Frotzer(options);
-      assert.isTrue(_.has(frotzer.options, 'gamefile'));
-
+    // KIll dfrotz in last test
+    afterEach(function() {
+      frotzer.kill();
     });
 
   });
@@ -63,7 +83,7 @@ describe('frotzer', function() {
     it('should set frotzer\'s options', async () => {
 
       await frotzer.init(options);
-      assert.isTrue(_.has(frotzer.options, 'gamefile'));
+      assert.isTrue(_.has(frotzer.options, 'storyfile'));
 
     });
 
@@ -97,7 +117,7 @@ describe('frotzer', function() {
       var msg = await frotzer.command('look');
       await frotzer.quit();
 
-      return assert.isString(msg);
+      return assert.isString(msg[0]);
 
     });
 
@@ -109,7 +129,7 @@ describe('frotzer', function() {
       var msg = await frotzer.command('look');
       await frotzer.quit();
 
-      return assert.isString(msg);
+      return assert.isString(msg[0]);
 
     });
 
@@ -122,7 +142,7 @@ describe('frotzer', function() {
       var msg = await frotzer.command('look');
       await frotzer.quit();
 
-      return assert.isFalse(msg.includes('\n'));
+      return assert.isFalse(msg[0].includes('\n'));
 
     });
 
@@ -136,7 +156,7 @@ describe('frotzer', function() {
       var msg = await frotzer.command('look');
       await frotzer.quit();
 
-      return assert.isTrue(msg.includes('\n\n'));
+      return assert.isTrue(msg[0].includes('\n\n'));
 
     });
 
@@ -179,7 +199,7 @@ describe('frotzer', function() {
 
       await frotzer.quit();
 
-      return assert.isString(msg);
+      return assert.isString(msg[0]);
 
     });
 
@@ -291,6 +311,7 @@ describe('frotzer', function() {
     });
 
 
+
     it('should save a game', async () => {
 
       //  create a dummy savefile (to have frotzer overwriting it)
@@ -356,7 +377,7 @@ describe('frotzer', function() {
 
       await fs.unlink(filepath);
 
-      return assert.isTrue(res.includes('mushroom'));
+      return assert.isTrue(res[0].includes('mushroom'));
 
     });
 

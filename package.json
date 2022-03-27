@@ -1,7 +1,7 @@
 {
   "name": "frotzer",
   "version": "1.0.0",
-  "description": "![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/bitbxl/554394d67973a35b66f7b60a24fa0950/raw/frotzer-test.json) ![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/bitbxl/554394d67973a35b66f7b60a24fa0950/raw/frotzer-linux-build.json) ![badge](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/bitbxl/554394d67973a35b66f7b60a24fa0950/raw/frotzer-macos-build.json)",
+  "description": "A minimal dfrotz wrapper",
   "main": "frotzer.js",
   "scripts": {
     "build:dfrotz": "make -C ./frotz/ dumb",
@@ -32,5 +32,9 @@
   "bugs": {
     "url": "https://github.com/bitbxl/frotzer/issues"
   },
-  "homepage": "https://github.com/bitbxl/frotzer#readme"
+  "homepage": "https://github.com/bitbxl/frotzer#readme",
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  }
 }
