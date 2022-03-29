@@ -31,7 +31,7 @@ using default options:
 ```javascript
 const {Frotzer} = require('@bitbxl/frotzer');
 
-let frotzer = new Frotzer({gamefile: 'Ruins.z5'});
+let frotzer = new Frotzer({storyfile: 'Ruins.z5'});
 
 (async () => {
 
