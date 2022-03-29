@@ -6,7 +6,7 @@
   "scripts": {
     "build:dfrotz": "make -C ./frotz/ dumb",
     "preinstall": "git init && git submodule add -f https://gitlab.com/DavidGriffith/frotz.git ./frotz && npm run build:dfrotz",
-    "postinstall": "rm -R ./frotz/*/ && rm ./frotz/!(dfrotz)",
+    "postinstall": "rm -R ./frotz/*/ && find ./frotz/ -type f -not -name dfrotz -delete",
     "version:dfrotz": "./frotz/dfrotz -v | sed 's/^[a-zA-Z ]*\\([0-9.]*\\).*/\\1/' | head -1",
     "test": "nyc mocha --timeout=3000",
     "test:coverage": "nyc --timeout=3000 --reporter=text-summary mocha | grep Statements | awk '{print $3}'",
