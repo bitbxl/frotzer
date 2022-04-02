@@ -1,8 +1,11 @@
 .github/workflows
 frotz/
 test/
+docs/
 .gitignore
 .gitmodules
+.git/
+.github/
 
 
 # Logs

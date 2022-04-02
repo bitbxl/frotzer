@@ -1,11 +1,11 @@
 {
   "name": "frotzer",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "A minimal dfrotz wrapper",
   "main": "frotzer.js",
   "scripts": {
     "build:dfrotz": "make -C ./frotz/ dumb",
-    "preinstall": "git init -q; git submodule add -f https://gitlab.com/DavidGriffith/frotz.git ./frotz && npm run build:dfrotz",
+    "preinstall": "git clone https://gitlab.com/DavidGriffith/frotz.git ./frotz && npm run build:dfrotz",
     "postinstall": "rm -R ./frotz/*/ && find ./frotz/ -type f -not -name dfrotz -delete",
     "version:dfrotz": "./frotz/dfrotz -v | sed 's/^[a-zA-Z ]*\\([0-9.]*\\).*/\\1/' | head -1",
     "test": "nyc mocha --timeout=3000",
