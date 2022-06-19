@@ -24,9 +24,13 @@ describe('frotzer', function() {
   var options = {
     storyfile: 'Ruins.z5',
     storydir: './test',
-    savedir: './test'
+    savedir: './test',
+    seq: {
+      quit_endmarker: '<E>'
+    }
   };
 
+  // default options
   var defOptions = {
     dfexec: './frotz/dfrotz',
     dfopts: ['-m'],
@@ -58,18 +62,18 @@ describe('frotzer', function() {
 
     it('should set frotzer\'s options', async () => {
       await frotzer.init(options);
-      var keys = ['storyfile', 'storydir', 'savedir'];
-      assert.isTrue(_.isEqual(_.pick(options, keys), _.pick(frotzer.options, keys)));
+      var keys = (_.keys(options));
+      assert.isTrue(_.isEqual(_.pick(_.omit(options, 'seq'), keys), _.pick(_.omit(frotzer.options, 'seq'), keys)));
+      assert.isTrue(_.isEqual(_.pick(options.seq, keys), _.pick(frotzer.options.seq, keys)));
       assert.isTrue(_.isEqual(_.omit(defOptions, keys), _.omit(frotzer.options, keys)));
     });
 
-    // KIll dfrotz in last test
+    // Using kill() because quit() is not possible (game not started)
     afterEach(function() {
       frotzer.kill();
     });
 
   });
-
 
 
 
@@ -83,19 +87,32 @@ describe('frotzer', function() {
     it('should set frotzer\'s options', async () => {
 
       await frotzer.init(options);
-      assert.isTrue(_.has(frotzer.options, 'storyfile'));
+      var keys = (_.keys(options));
+      assert.isTrue(_.isEqual(_.pick(_.omit(options, 'seq'), keys), _.pick(_.omit(frotzer.options, 'seq'), keys)));
+      assert.isTrue(_.isEqual(_.omit(defOptions, keys), _.omit(frotzer.options, keys)));
+
+    });
+
+    it('should throw an error if the passed options are not valid', async () => {
+
+      const op = Object.assign({}, options);
+      op.storyfile = new Array(['a', 'b']);
+
+      //await frotzer.start(op);
+
+      assert.isRejected(frotzer.init(op), Error);
 
     });
 
     it('should throw an error if frotzer is in running state', async () => {
 
       await frotzer.start(options);
-      return assert.isRejected(frotzer.init(options), Error);
+      assert.isRejected(frotzer.init(options), Error);
 
     });
 
-    // KIll dfrotz in last test
-    after(function() {
+    // Using kill() because quit() is not possible (game not started)
+    afterEach(function() {
       frotzer.kill();
     });
 
@@ -109,7 +126,7 @@ describe('frotzer', function() {
     });
 
 
-    it('should start frotzer', async () => {
+    it('should start frotzer after initialization', async () => {
 
       await frotzer.init(options);
       await frotzer.start();
@@ -117,7 +134,7 @@ describe('frotzer', function() {
       var msg = await frotzer.command('look');
       await frotzer.quit();
 
-      return assert.isString(msg[0]);
+      assert.isString(msg[0]);
 
     });
 
@@ -129,7 +146,7 @@ describe('frotzer', function() {
       var msg = await frotzer.command('look');
       await frotzer.quit();
 
-      return assert.isString(msg[0]);
+      assert.isString(msg[0]);
 
     });
 
@@ -142,7 +159,7 @@ describe('frotzer', function() {
       var msg = await frotzer.command('look');
       await frotzer.quit();
 
-      return assert.isFalse(msg[0].includes('\n'));
+      assert.isFalse(msg[0].includes('\n'));
 
     });
 
@@ -156,14 +173,14 @@ describe('frotzer', function() {
       var msg = await frotzer.command('look');
       await frotzer.quit();
 
-      return assert.isTrue(msg[0].includes('\n\n'));
+      assert.isTrue(msg[0].includes('\n\n'));
 
     });
 
 
     it('should throw an error if the input options are insufficient', async () => {
 
-      return assert.isRejected(frotzer.start(), Error);
+      assert.isRejected(frotzer.start(_.omit(options, ['storyfile'])), Error);
 
     });
 
@@ -171,8 +188,7 @@ describe('frotzer', function() {
     it('should throw an error if frotzer is in running state', async () => {
 
       await frotzer.start(options);
-
-      return assert.isRejected(frotzer.start(options), Error);
+      assert.isRejected(frotzer.start(options), Error);
 
     });
 
@@ -180,6 +196,7 @@ describe('frotzer', function() {
     after(function() {
       frotzer.kill();
     });
+
 
   });
 
@@ -199,7 +216,7 @@ describe('frotzer', function() {
 
       await frotzer.quit();
 
-      return assert.isString(msg[0]);
+      assert.isString(msg[0]);
 
     });
 
@@ -208,20 +225,20 @@ describe('frotzer', function() {
       await frotzer.init(options);
       await frotzer.start();
 
-      var msg1 = await frotzer.command('look', 'inventory', 'pick up mushroom', 'inventory');
-      var msg2 = await frotzer.command(['look', 'inventory', 'drop  mushroom', 'inventory']);
+      var msg = await frotzer.command('look', 'inventory', 'pick up mushroom', 'inventory');
 
       await frotzer.quit();
 
-      return (assert.isArray(msg1) && assert.isArray(msg2));
+      assert.isArray(msg);
 
     });
 
     it('should throw an error if frotzer is in not in running state', async () => {
 
-      return assert.isRejected(frotzer.command('look'), Error);
+      assert.isRejected(frotzer.command('look'), Error);
 
     });
+
 
   });
 
@@ -238,15 +255,21 @@ describe('frotzer', function() {
       await frotzer.init(options);
       await frotzer.start();
       await frotzer.send('look' + '\n');
+      await frotzer.send('pick up mushroom' + '\n');
+      var res = await frotzer.command(['inventory']);
+
       await frotzer.quit();
+
+      expect(res[0]).to.have.string('mushroom');
 
     });
 
     it('should throw an error if frotzer is in not in running state', async () => {
 
-      return assert.isRejected(frotzer.send('look' + '\n'), Error);
+      assert.isRejected(frotzer.send('look' + '\n'), Error);
 
     });
+
 
   });
 
@@ -266,6 +289,7 @@ describe('frotzer', function() {
       await frotzer.kill();
 
       expect(frotzer.state).to.equal('ready');
+      expect(frotzer.dfrotz).to.equal(null);
 
     });
 

@@ -76,7 +76,7 @@ function Frotzer(options) {
    * game has not been started yet.
    * @member {external:ChildProcess}
    */
-  this.dfrotz;
+  this.dfrotz = null;
 
 } // end Frotzer class
 
@@ -547,9 +547,10 @@ Frotzer.prototype.kill = async function() {
 
     if (this.state === 'running') {
 
-      //listener (close)
-      this.dfrotz.once('close', (code, signal) => {
+      //listener (exit)
+      this.dfrotz.once('exit', (code, signal) => {
         this.state = 'ready';
+        this.dfrotz = null;
         resolve();
       });
 
@@ -632,7 +633,7 @@ Frotzer.prototype._validateOptions = function(options) {
   var schemaRoot = {
     dfexec: value => regexDirPath.test(value) || _.isUndefined(value),
     dfopts: value => _.isArray(value) || _.isUndefined(value),
-    storyfile: value => value => _.isString(value) || _.isUndefined(value),
+    storyfile: value => _.isString(value) || _.isNull(value) || _.isUndefined(value),
     storydir: value => regexDirPath.test(value) || _.isUndefined(value),
     savedir: value => regexDirPath.test(value) || _.isUndefined(value),
     filter: value => /(none|compact|oneline)/.test(value) || _.isUndefined(value),
@@ -659,6 +660,7 @@ Frotzer.prototype._validateOptions = function(options) {
   }
 
   var errors = _.flatten(errorsRoot, errorsSeq);
+  //console.log(options);
   if (errors.length != 0) {
     return {
       valid: false,
@@ -682,37 +684,37 @@ Frotzer.prototype._setOptions = function(options, err_orig) {
     //return false;
   }
 
-  if (typeof options === 'undefined') {
-    //console.log(this._defOptions)
-    options = {};
-    //console.log(options)
+  var inOpts = {};
+
+  if (typeof options !== 'undefined') {
+    inOpts = JSON.parse(JSON.stringify(options));
   }
 
-  if (typeof options.seq === 'undefined') {
-    options.seq = {};
+  if (typeof inOpts.seq === 'undefined') {
+    inOpts.seq = {};
   }
 
   this.options.seq = _.defaults(this.options.seq, this._defOptions.seq);
   this.options = _.defaults(this.options, this._defOptions);
 
   // Work on a duplicate of this.options in case a roll back is needed
-  var duplOptions = JSON.parse(JSON.stringify(this.options));
+  var outOpts = JSON.parse(JSON.stringify(this.options));
 
   // Overwrite key
-  _.each(options, (value, key) => {
+  _.each(inOpts, (value, key) => {
     if (key !== 'seq') {
-      duplOptions[key] = value;
+      outOpts[key] = value;
     }
   });
   // Overwrite seq key
-  _.each(options.seq, (value, key) => {
-    duplOptions.seq[key] = value;
+  _.each(inOpts.seq, (value, key) => {
+    outOpts.seq[key] = value;
   });
 
-  var valres = this._validateOptions(duplOptions);
+  var valres = this._validateOptions(outOpts);
 
   if (valres.valid) {
-    this.options = duplOptions;
+    this.options = outOpts;
     this._updateState();
   } else {
     throw new Error(err_orig + ': options cannot be set, key ' + valres.key + ' is not valid');
