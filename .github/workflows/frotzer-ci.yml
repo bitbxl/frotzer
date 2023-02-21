@@ -54,12 +54,12 @@ jobs:
 
     steps:
       - name: Clone repositories
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: recursive
 
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
 
@@ -94,7 +94,7 @@ jobs:
 
       - name: Publish build badge
         if: ${{ always() }}
-        uses: schneegans/dynamic-badges-action@v1.1.0
+        uses: schneegans/dynamic-badges-action@v1.6.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
           gistID: ${{ env.build_GIST_ID }}
@@ -105,7 +105,7 @@ jobs:
 
       - name: Publish test badge
         if: ${{ always() }}
-        uses: schneegans/dynamic-badges-action@v1.1.0
+        uses: schneegans/dynamic-badges-action@v1.6.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
           gistID: ${{ env.test_GIST_ID }}
@@ -116,7 +116,7 @@ jobs:
 
       - name: Publish coverage badge
         if: ${{ always() }}
-        uses: schneegans/dynamic-badges-action@v1.1.0
+        uses: schneegans/dynamic-badges-action@v1.6.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
           gistID: ${{ env.cov_GIST_ID }}
@@ -127,7 +127,7 @@ jobs:
 
       - name: Publish dfrotz version badge
         if: ${{ always() }}
-        uses: schneegans/dynamic-badges-action@v1.1.0
+        uses: schneegans/dynamic-badges-action@v1.6.0
         with:
           auth: ${{ secrets.GIST_SECRET }}
           gistID: ${{ env.dfver_GIST_ID }}
