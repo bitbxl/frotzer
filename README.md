@@ -58,6 +58,6 @@ let frotzer = new Frotzer({storyfile: 'Ruins.z5'});
   // responses contains:
   // ['Are you sure you want to quit?', '<END>']
 
-}
+})()
 ```
 More information on how to use Frotzer is in the [API Documentation](docs/api.md).
